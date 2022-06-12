@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { SupabaseClient, ApiError, Session, User } from '@supabase/supabase-js';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+import { AuthDto } from './dtos';
 import { MockSupabaseClient } from '../../test/helpers';
 
 type SupabaseResult = {

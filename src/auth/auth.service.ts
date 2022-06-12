@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { AuthDto } from './dto';
+import { AuthDto } from './dtos';
 import { TokenType } from './types';
 
 @Injectable()

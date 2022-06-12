@@ -4,8 +4,9 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
 import { SetAdminRequest } from './dtos';
+import { UserDto } from '../auth/dtos';
 
-const currentUser = {
+const currentUser: UserDto = {
   id: 'id',
   app_metadata: {},
   user_metadata: {

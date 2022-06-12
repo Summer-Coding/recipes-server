@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+import { AuthDto } from './dtos';
 import { TokenType } from './types';
 import { MockSupabaseClient } from '../../test/helpers';
 
