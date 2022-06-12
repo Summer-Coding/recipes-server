@@ -42,7 +42,7 @@ describe('AdminController', () => {
   });
 
   describe('setUserToAdmin', () => {
-    it('should call setUserToAdmin', async () => {
+    it('should call create', async () => {
       const currentUser = {
         id: 'id',
         app_metadata: {},
@@ -56,7 +56,7 @@ describe('AdminController', () => {
       const request: SetAdminRequest = { id: 'id' };
       jest.spyOn(service, 'setUserToAdmin').mockImplementation();
 
-      await controller.setUserToAdmin(currentUser, request);
+      await controller.create(currentUser, request);
       expect(service.setUserToAdmin).toBeCalledWith({
         currentUserId: currentUser.id,
         newAdminId: request.id,
