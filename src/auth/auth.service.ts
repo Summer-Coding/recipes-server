@@ -1,26 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { AuthDto } from './dto';
+import { TokenType } from './types';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateUserDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(private supabase: SupabaseClient) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async signIn(authDto: AuthDto): Promise<TokenType> {
+    const { session, error } = await this.supabase.auth.signIn({ ...authDto });
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    if (error || !session?.access_token) {
+      throw new Error(`user with email ${authDto.email} was unable to sign in`);
+    }
 
-  update(id: number, updateAuthDto: LoginDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return {
+      accessToken: session.access_token,
+    };
   }
 }
