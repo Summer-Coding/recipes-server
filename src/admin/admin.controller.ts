@@ -10,8 +10,8 @@ import { SetAdminRequest } from './dtos';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Post('create-admin')
-  async setUserToAdmin(
+  @Post('create')
+  async create(
     @CurrentUser() currentUser: User,
     @Body() request: SetAdminRequest,
   ) {
