@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
@@ -20,6 +21,7 @@ const supabase = createClient(
   controllers: [AdminController],
   providers: [
     AdminService,
+    PrismaClient,
     {
       provide: SupabaseClient,
       useValue: supabase,

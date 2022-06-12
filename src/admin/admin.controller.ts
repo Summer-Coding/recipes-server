@@ -12,7 +12,8 @@ export class AdminController {
 
   @Get('users')
   async getAllUsers(@CurrentUser() currentUser: UserDto) {
-    return await this.adminService.getAllUsers(currentUser.id);
+    const users = await this.adminService.getAllUsers(currentUser.id);
+    return await this.adminService.getAllProfiles(users);
   }
 
   @Post('create')

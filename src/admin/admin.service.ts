@@ -1,10 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import { SupabaseClient, User } from '@supabase/supabase-js';
+import { UserDto } from 'src/auth/dtos';
 import { SetAdminDto } from './dtos';
+import { UserProfileListItemDto } from './dtos/user-profile-list-item.dto';
 
 @Injectable()
 export class AdminService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient, private prisma: PrismaClient) {}
 
   async getAllUsers(currentUserId: string): Promise<Array<User>> {
     if (!(await this.checkIfUserIsAdmin(currentUserId))) {
@@ -17,6 +20,38 @@ export class AdminService {
     }
 
     return data;
+  }
+
+  async getAllProfiles(
+    users: UserDto[],
+  ): Promise<Array<UserProfileListItemDto>> {
+    const profiles = await this.prisma.profile.findMany({
+      where: {
+        userId: {
+          in: users.map((x) => x.id),
+        },
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+        username: true,
+        userId: true,
+        isActive: true,
+      },
+    });
+
+    return profiles.map(
+      (profile) =>
+        ({
+          ...profile,
+          ...users
+            .map((u) => ({
+              ...u,
+              roles: u.user_metadata?.roles ?? [],
+            }))
+            .find((u) => u.id === profile.userId),
+        } as UserProfileListItemDto),
+    );
   }
 
   async setUserToAdmin(dto: SetAdminDto): Promise<void> {
