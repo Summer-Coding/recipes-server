@@ -9,6 +9,25 @@ type SupabaseGetUserResult =
   | { data: User; error: null }
   | { data: null; error: ApiError };
 
+type SupabaseGetUsersResult =
+  | { data: User[]; error: null }
+  | { data: null; error: ApiError };
+
+const defaultError: ApiError = {
+  status: 401,
+  message: 'unauthorized',
+};
+
+const defaultUser: User = {
+  id: 'id',
+  app_metadata: {},
+  user_metadata: {
+    roles: ['user', 'admin'],
+  },
+  aud: 'aud',
+  created_at: 'createdAt',
+};
+
 describe('AdminService', () => {
   let service: AdminService;
   let supabase: SupabaseClient;
@@ -34,7 +53,6 @@ describe('AdminService', () => {
 
   describe('setUserToAdmin', () => {
     let authDto: SetAdminDto;
-
     let userResponse: SupabaseGetUserResult;
 
     beforeEach(() => {
@@ -45,15 +63,7 @@ describe('AdminService', () => {
 
       userResponse = {
         error: null,
-        data: {
-          id: 'id',
-          app_metadata: {},
-          user_metadata: {
-            roles: ['user', 'admin'],
-          },
-          aud: 'aud',
-          created_at: 'createdAt',
-        },
+        data: { ...defaultUser },
       };
     });
 
@@ -72,10 +82,7 @@ describe('AdminService', () => {
 
     it('should throw UnauthorizedException if error is not null', async () => {
       const unsuccessfulUserResponse: SupabaseGetUserResult = {
-        error: {
-          status: 401,
-          message: 'unauthorized',
-        },
+        error: { ...defaultError },
         data: null,
       };
 
@@ -147,6 +154,8 @@ describe('AdminService', () => {
     });
 
     it('should call updateUserById if roles includes admin', async () => {
+      userResponse.data.user_metadata.roles = ['user', 'admin'];
+
       jest
         .spyOn(supabase.auth.api, 'getUserById')
         .mockImplementation(async () => userResponse);
@@ -164,6 +173,163 @@ describe('AdminService', () => {
           },
         },
       );
+    });
+  });
+
+  describe('getAllUsers', () => {
+    let currentUserId: string;
+    let userResponse: SupabaseGetUserResult;
+
+    beforeEach(() => {
+      currentUserId = 'currentUserId';
+
+      userResponse = {
+        error: null,
+        data: { ...defaultUser },
+      };
+    });
+
+    it('should call getUserById', async () => {
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch {}
+      expect(supabase.auth.api.getUserById).toBeCalledWith(currentUserId);
+    });
+
+    it('should throw UnauthorizedException if error is not null', async () => {
+      const unsuccessfulUserResponse: SupabaseGetUsersResult = {
+        error: { ...defaultError },
+        data: null,
+      };
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => unsuccessfulUserResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+      }
+    });
+
+    it('should throw UnauthorizedException if user_metadata null', async () => {
+      userResponse.data.user_metadata = null;
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+      }
+    });
+
+    it('should throw UnauthorizedException if roles is null', async () => {
+      userResponse.data.user_metadata.roles = null;
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+      }
+    });
+
+    it('should throw UnauthorizedException if roles is empty array', async () => {
+      userResponse.data.user_metadata.roles = [];
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+      }
+    });
+
+    it('should throw UnauthorizedException if roles does not include admin', async () => {
+      userResponse.data.user_metadata.roles = ['user'];
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+      }
+    });
+
+    it('should call listUsers if roles includes admin', async () => {
+      userResponse.data.user_metadata.roles = ['user', 'admin'];
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      jest.spyOn(supabase.auth.api, 'listUsers').mockImplementation();
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch {}
+
+      expect(supabase.auth.api.listUsers).toBeCalled();
+    });
+
+    it('should throw error if error is returned', async () => {
+      userResponse.data.user_metadata.roles = ['user', 'admin'];
+
+      const listUsersResponse: SupabaseGetUsersResult = {
+        error: { ...defaultError },
+        data: null,
+      };
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      jest
+        .spyOn(supabase.auth.api, 'listUsers')
+        .mockImplementation(async () => listUsersResponse);
+
+      try {
+        await service.getAllUsers(currentUserId);
+      } catch (error) {
+        expect(error).toMatchObject(new Error('could not get users'));
+      }
+    });
+
+    it('should return data from result', async () => {
+      userResponse.data.user_metadata.roles = ['user', 'admin'];
+
+      const listUsersResponse: SupabaseGetUsersResult = {
+        error: null,
+        data: [{ ...defaultUser }],
+      };
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockImplementation(async () => userResponse);
+
+      jest
+        .spyOn(supabase.auth.api, 'listUsers')
+        .mockImplementation(async () => listUsersResponse);
+
+      const actual = await service.getAllUsers(currentUserId);
+      expect(actual).toMatchObject([defaultUser]);
     });
   });
 });

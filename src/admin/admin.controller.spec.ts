@@ -5,6 +5,16 @@ import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
 import { SetAdminRequest } from './dtos';
 
+const currentUser = {
+  id: 'id',
+  app_metadata: {},
+  user_metadata: {
+    roles: ['user'],
+  },
+  aud: 'aud',
+  created_at: 'createdAt',
+};
+
 describe('AdminController', () => {
   let controller: AdminController;
   let service: AdminService;
@@ -41,18 +51,26 @@ describe('AdminController', () => {
     expect(controller).toBeDefined();
   });
 
+  describe('getAll', () => {
+    it('should call getAllUsers', async () => {
+      jest.spyOn(service, 'getAllUsers').mockImplementation();
+
+      await controller.getAll(currentUser);
+      expect(service.getAllUsers).toBeCalledWith(currentUser.id);
+    });
+
+    it('should return result of getAllUsers', async () => {
+      jest
+        .spyOn(service, 'getAllUsers')
+        .mockImplementation(async () => [currentUser]);
+
+      const actual = await controller.getAll(currentUser);
+      expect(actual).toMatchObject([currentUser]);
+    });
+  });
+
   describe('setUserToAdmin', () => {
     it('should call create', async () => {
-      const currentUser = {
-        id: 'id',
-        app_metadata: {},
-        user_metadata: {
-          roles: ['user'],
-        },
-        aud: 'aud',
-        created_at: 'createdAt',
-      };
-
       const request: SetAdminRequest = { id: 'id' };
       jest.spyOn(service, 'setUserToAdmin').mockImplementation();
 

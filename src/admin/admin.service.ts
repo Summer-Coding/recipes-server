@@ -1,10 +1,23 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 import { SetAdminDto } from './dtos';
 
 @Injectable()
 export class AdminService {
   constructor(private supabase: SupabaseClient) {}
+
+  async getAllUsers(currentUserId: string): Promise<Array<User>> {
+    if (!(await this.checkIfUserIsAdmin(currentUserId))) {
+      throw new UnauthorizedException();
+    }
+
+    const { data, error } = await this.supabase.auth.api.listUsers();
+    if (error) {
+      throw new Error('could not get users');
+    }
+
+    return data;
+  }
 
   async setUserToAdmin(dto: SetAdminDto): Promise<void> {
     if (!(await this.checkIfUserIsAdmin(dto.currentUserId))) {

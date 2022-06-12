@@ -24,6 +24,9 @@ export class MockSupabaseClient extends SupabaseClient {
       public async updateUserById(id: string, attributes: AdminUserAttributes) {
         return null;
       }
+      public async listUsers() {
+        return null;
+      }
     };
   };
 }

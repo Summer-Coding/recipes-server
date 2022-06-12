@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { User } from '@supabase/supabase-js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
@@ -9,6 +9,11 @@ import { SetAdminRequest } from './dtos';
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
+
+  @Get()
+  async getAll(@CurrentUser() currentUser: User) {
+    return await this.adminService.getAllUsers(currentUser.id);
+  }
 
   @Post('create')
   async create(
