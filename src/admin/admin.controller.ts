@@ -10,8 +10,8 @@ import { SetAdminRequest } from './dtos';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Get()
-  async getAll(@CurrentUser() currentUser: User) {
+  @Get('users')
+  async getAllUsers(@CurrentUser() currentUser: User) {
     return await this.adminService.getAllUsers(currentUser.id);
   }
 

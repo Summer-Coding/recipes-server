@@ -55,7 +55,7 @@ describe('AdminController', () => {
     it('should call getAllUsers', async () => {
       jest.spyOn(service, 'getAllUsers').mockImplementation();
 
-      await controller.getAll(currentUser);
+      await controller.getAllUsers(currentUser);
       expect(service.getAllUsers).toBeCalledWith(currentUser.id);
     });
 
@@ -64,7 +64,7 @@ describe('AdminController', () => {
         .spyOn(service, 'getAllUsers')
         .mockImplementation(async () => [currentUser]);
 
-      const actual = await controller.getAll(currentUser);
+      const actual = await controller.getAllUsers(currentUser);
       expect(actual).toMatchObject([currentUser]);
     });
   });
