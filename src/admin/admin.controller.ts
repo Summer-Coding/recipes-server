@@ -1,29 +1,24 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { UserDto } from '../auth/dtos';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import { AdminService } from './admin.service';
-import { SetAdminRequest } from './dtos';
+import { SetAdminDto } from './dtos';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/constants/role.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
-@UseGuards(GqlAuthGuard)
+@UseGuards(RolesGuard)
+@Roles(Role.Admin)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get('users')
-  async getAllUsers(@CurrentUser() currentUser: UserDto) {
-    const users = await this.adminService.getAllUsers(currentUser.id);
+  async getAllUsers() {
+    const users = await this.adminService.getAllUsers();
     return await this.adminService.getAllProfiles(users);
   }
 
   @Post('create')
-  async create(
-    @CurrentUser() currentUser: UserDto,
-    @Body() request: SetAdminRequest,
-  ) {
-    await this.adminService.setUserToAdmin({
-      currentUserId: currentUser.id,
-      newAdminId: request.id,
-    });
+  async create(@Body() dto: SetAdminDto) {
+    await this.adminService.setUserToAdmin(dto);
   }
 }

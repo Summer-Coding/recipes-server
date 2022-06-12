@@ -3,18 +3,9 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
-import { SetAdminRequest } from './dtos';
 import { UserDto } from '../auth/dtos';
-
-const currentUser: UserDto = {
-  id: 'id',
-  app_metadata: {},
-  user_metadata: {
-    roles: ['user'],
-  },
-  aud: 'aud',
-  created_at: 'createdAt',
-};
+import { PrismaClient } from '@prisma/client';
+import { SetAdminDto, UserProfileListItemDto } from './dtos';
 
 describe('AdminController', () => {
   let controller: AdminController;
@@ -33,6 +24,7 @@ describe('AdminController', () => {
       controllers: [AdminController],
       providers: [
         AdminService,
+        PrismaClient,
         {
           provide: SupabaseClient,
           useValue: new MockSupabaseClient('test', 'test'),
@@ -53,11 +45,51 @@ describe('AdminController', () => {
   });
 
   describe('getAll', () => {
-    it('should call getAllUsers', async () => {
-      jest.spyOn(service, 'getAllUsers').mockImplementation();
+    let currentUser: UserDto;
+    let currentUserProfile: UserProfileListItemDto;
 
-      await controller.getAllUsers(currentUser);
-      expect(service.getAllUsers).toBeCalledWith(currentUser.id);
+    beforeEach(() => {
+      currentUser = {
+        id: 'id',
+        app_metadata: {},
+        user_metadata: {
+          roles: ['user'],
+        },
+        aud: 'aud',
+        created_at: 'createdAt',
+      };
+
+      currentUserProfile = {
+        id: 'id',
+        roles: ['user'],
+        isActive: true,
+        firstName: 'firstName',
+        lastName: 'lastName',
+        username: 'username',
+        email: 'test@test.com',
+      };
+    });
+
+    it('should call getAllUsers', async () => {
+      jest
+        .spyOn(service, 'getAllUsers')
+        .mockImplementation(async () => [currentUser]);
+
+      await controller.getAllUsers();
+      expect(service.getAllUsers).toBeCalled();
+    });
+
+    it('should call getAllProfiles', async () => {
+      jest
+        .spyOn(service, 'getAllUsers')
+        .mockImplementation(async () => [currentUser]);
+
+      jest
+        .spyOn(service, 'getAllProfiles')
+        .mockImplementation(async () => [currentUserProfile]);
+
+      await controller.getAllUsers();
+      expect(service.getAllProfiles).toBeCalledWith([currentUser]);
     });
 
     it('should return result of getAllUsers', async () => {
@@ -65,20 +97,23 @@ describe('AdminController', () => {
         .spyOn(service, 'getAllUsers')
         .mockImplementation(async () => [currentUser]);
 
-      const actual = await controller.getAllUsers(currentUser);
-      expect(actual).toMatchObject([currentUser]);
+      jest
+        .spyOn(service, 'getAllProfiles')
+        .mockImplementation(async () => [currentUserProfile]);
+
+      const actual = await controller.getAllUsers();
+      expect(actual).toMatchObject([currentUserProfile]);
     });
   });
 
   describe('setUserToAdmin', () => {
     it('should call create', async () => {
-      const request: SetAdminRequest = { id: 'id' };
+      const dto: SetAdminDto = { id: 'id' };
       jest.spyOn(service, 'setUserToAdmin').mockImplementation();
 
-      await controller.create(currentUser, request);
+      await controller.create(dto);
       expect(service.setUserToAdmin).toBeCalledWith({
-        currentUserId: currentUser.id,
-        newAdminId: request.id,
+        id: dto.id,
       });
     });
   });

@@ -13,8 +13,8 @@ datasource db {
 model Profile {
   id              String  @id @default(uuid())
   username        String  @unique
-  firstName       String?
-  lastName        String?
+  firstName       String
+  lastName        String
   profileImageSrc String?
   userId          String  @unique
   isActive        Boolean @default(true)

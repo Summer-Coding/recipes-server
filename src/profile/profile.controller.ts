@@ -1,11 +1,9 @@
-import { Controller, Get, Post, Body, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpsertProfileDto } from './dto/upsert-profile.dto';
-import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserDto } from '../auth/dtos';
 
-@UseGuards(GqlAuthGuard)
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}

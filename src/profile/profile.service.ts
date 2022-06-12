@@ -8,7 +8,7 @@ export class ProfileService {
   async findOne(userId: string) {
     return await this.prisma.profile.findUnique({
       where: {
-        userId: userId,
+        userId,
       },
     });
   }
@@ -16,7 +16,7 @@ export class ProfileService {
   async upsert(data: Prisma.ProfileUpdateInput) {
     return await this.prisma.profile.upsert({
       where: {
-        userId: data.userId.toString(),
+        userId: data.userId as string,
       },
       update: {
         username: data.username,
@@ -25,10 +25,10 @@ export class ProfileService {
         profileImageSrc: data.profileImageSrc ?? '',
       },
       create: {
-        userId: data.userId.toString(),
-        username: data.username.toString(),
-        firstName: data.firstName.toString(),
-        lastName: data.lastName.toString(),
+        userId: data.userId as string,
+        username: data.username as string,
+        firstName: data.firstName as string,
+        lastName: data.lastName as string,
         profileImageSrc: data.profileImageSrc?.toString() ?? '',
       },
     });

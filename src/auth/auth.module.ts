@@ -1,12 +1,11 @@
-import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { GqlAuthGuard } from './guards/gql-auth.guard';
 import { SupabaseStrategy } from './strategies/supabase.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { AuthResolver } from './resolvers/auth.resolver';
+import { APP_GUARD } from '@nestjs/core';
+import { SupabaseAuthGuard } from './guards/supabase.guard';
 
 const options = {
   autoRefreshToken: true,
@@ -24,14 +23,17 @@ const supabase = createClient(
   imports: [PassportModule],
   providers: [
     AuthService,
-    AuthResolver,
     SupabaseStrategy,
     {
       provide: SupabaseClient,
       useValue: supabase,
     },
+    {
+      provide: APP_GUARD,
+      useClass: SupabaseAuthGuard,
+    },
   ],
   controllers: [AuthController],
-  exports: [AuthService, SupabaseStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
