@@ -17,4 +17,5 @@ model Profile {
   lastName        String?
   profileImageSrc String?
   userId          String  @unique
+  isActive        Boolean @default(true)
 }
