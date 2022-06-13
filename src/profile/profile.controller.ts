@@ -11,10 +11,10 @@ export class ProfileController {
   @Post()
   async create(
     @CurrentUser() currentUser: UserDto,
-    @Body() createProfileDto: UpsertProfileDto,
+    @Body() dto: UpsertProfileDto,
   ) {
     return await this.profileService.upsert({
-      ...createProfileDto,
+      ...dto,
       userId: currentUser.id,
     });
   }
