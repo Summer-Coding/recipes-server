@@ -14,8 +14,8 @@ const options = {
 };
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY,
+  process.env.SUPABASE_URL as string,
+  process.env.SUPABASE_KEY as string,
   options,
 );
 
