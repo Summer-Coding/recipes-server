@@ -109,7 +109,7 @@ describe('AdminController', () => {
   describe('setUserToAdmin', () => {
     it('should call create', async () => {
       const dto: SetAdminDto = { id: 'id' };
-      jest.spyOn(service, 'setUserToAdmin').mockImplementation();
+      jest.spyOn(service, 'setUserToAdmin');
 
       await controller.create(dto);
       expect(service.setUserToAdmin).toBeCalledWith({

@@ -4,10 +4,33 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dtos';
 import { MockSupabaseClient } from '../../test/helpers';
 
-type SupabaseResult = {
-  user: User;
-  session: Session;
-  error: ApiError;
+type SupabaseResult =
+  | {
+      user: User;
+      session: Session;
+      error: null;
+    }
+  | {
+      user: null;
+      session: null;
+      error: ApiError;
+    };
+
+const defaultUser: User = {
+  id: 'id',
+  email: 'test@test.com',
+  app_metadata: {},
+  user_metadata: {
+    roles: ['user', 'admin'],
+  },
+  aud: 'aud',
+  created_at: 'createdAt',
+};
+
+const defaultSession: Session = {
+  access_token: 'accessToken',
+  token_type: 'tokenType',
+  user: { ...defaultUser },
 };
 
 describe('AuthService', () => {
@@ -45,8 +68,8 @@ describe('AuthService', () => {
 
     beforeEach(() => {
       signInResult = {
-        user: null,
-        session: null,
+        user: { ...defaultUser },
+        session: { ...defaultSession },
         error: null,
       };
 
@@ -96,23 +119,6 @@ describe('AuthService', () => {
     });
 
     it('should throw error if session null', async () => {
-      jest
-        .spyOn(supabase.auth, 'signIn')
-        .mockImplementation(async () => signInResult);
-
-      try {
-        await service.signIn(authDto);
-      } catch (error) {
-        expect(error).toMatchObject(
-          new Error('user with email testEmail was unable to sign in'),
-        );
-      }
-    });
-
-    it('should throw error if access_token null', async () => {
-      session.access_token = null;
-      signInResult.session = session;
-
       jest
         .spyOn(supabase.auth, 'signIn')
         .mockImplementation(async () => signInResult);

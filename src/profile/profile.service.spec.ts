@@ -98,7 +98,7 @@ describe('ProfileService', () => {
   describe('remove', () => {
     it('should call update', async () => {
       const userId = 'userId';
-      prismaMock.profile.update.mockImplementation();
+      prismaMock.profile.update;
       await service.remove(userId);
 
       expect(prismaMock.profile.update).toBeCalledWith({

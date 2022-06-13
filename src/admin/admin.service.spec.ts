@@ -73,7 +73,7 @@ describe('AdminService', () => {
         .spyOn(supabase.auth.api, 'getUserById')
         .mockImplementation(async () => userResponse);
 
-      jest.spyOn(supabase.auth.api, 'listUsers').mockImplementation();
+      jest.spyOn(supabase.auth.api, 'listUsers');
 
       try {
         await service.getAllUsers();
@@ -181,7 +181,7 @@ describe('AdminService', () => {
       const authDto = {
         id: 'newAdminId',
       };
-      jest.spyOn(supabase.auth.api, 'updateUserById').mockImplementation();
+      jest.spyOn(supabase.auth.api, 'updateUserById');
 
       await service.setUserToAdmin(authDto);
       expect(supabase.auth.api.updateUserById).toBeCalledWith(authDto.id, {
