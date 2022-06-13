@@ -10,5 +10,5 @@ export class UpsertProfileDto {
   @IsNotEmpty()
   lastName: string;
 
-  profileImgSrc: string;
+  profileImgSrc?: string;
 }
