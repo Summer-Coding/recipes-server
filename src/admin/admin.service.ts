@@ -27,6 +27,7 @@ export class AdminService {
         },
       },
       select: {
+        id: true,
         firstName: true,
         lastName: true,
         username: true,
@@ -35,19 +36,14 @@ export class AdminService {
       },
     });
 
-    return profiles.map(
-      (profile) =>
-        ({
-          ...profile,
-          ...users
-            .map((u) => ({
-              ...u,
-              userId: u.id,
-              roles: u.user_metadata?.roles ?? [],
-            }))
-            .find((u) => u.id === profile.userId),
-        } as UserProfileListItemDto),
-    );
+    return profiles.map((profile) => {
+      const user = users.find((u) => u.id == profile.userId);
+      return {
+        ...profile,
+        roles: user?.user_metadata?.roles ?? [],
+        email: user?.email,
+      } as UserProfileListItemDto;
+    });
   }
 
   async setUserToAdmin(dto: SetAdminDto): Promise<void> {
