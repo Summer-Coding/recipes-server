@@ -42,7 +42,7 @@ export class AdminService {
           ...users
             .map((u) => ({
               ...u,
-              id: u.id,
+              userId: u.id,
               roles: u.user_metadata?.roles ?? [],
             }))
             .find((u) => u.id === profile.userId),
