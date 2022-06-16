@@ -10,12 +10,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id      String   @id
+  email   String   @unique
+  role    Role     @default(USER)
+  profile Profile?
+
+  @@map("users")
+}
+
 model Profile {
   id              String  @id @default(uuid())
   username        String  @unique
-  firstName       String
-  lastName        String
-  profileImageSrc String?
-  userId          String  @unique
-  isActive        Boolean @default(true)
+  firstName       String  @map("first_name")
+  lastName        String  @map("last_name")
+  profileImageSrc String? @map("profile_image_src")
+  userId          String  @unique @map("user_id")
+  isActive        Boolean @default(true) @map("is_active")
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("profiles")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
