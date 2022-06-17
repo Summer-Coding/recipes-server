@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaClient, Profile } from '@prisma/client';
+import { UserService } from '../user/user.service';
 import { prismaMock } from '../../test/helpers/singleton';
 import { UserDto } from '../auth/dtos';
 import { UpsertProfileDto } from './dto/upsert-profile.dto';
@@ -19,13 +20,15 @@ const defaultUser: UserDto = {
 
 describe('ProfileController', () => {
   let controller: ProfileController;
-  let service: ProfileService;
+  let profileService: ProfileService;
+  let userService: UserService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProfileController],
       providers: [
         ProfileService,
+        UserService,
         {
           provide: PrismaClient,
           useValue: prismaMock,
@@ -34,7 +37,8 @@ describe('ProfileController', () => {
     }).compile();
 
     controller = module.get<ProfileController>(ProfileController);
-    service = module.get<ProfileService>(ProfileService);
+    profileService = module.get<ProfileService>(ProfileService);
+    userService = module.get<UserService>(UserService);
   });
 
   it('should be defined', () => {
@@ -53,10 +57,19 @@ describe('ProfileController', () => {
       };
     });
 
-    it('should call upsert', async () => {
-      jest.spyOn(service, 'upsert');
+    it('should call createIfNotExists', async () => {
+      jest.spyOn(userService, 'createIfNotExists');
       await controller.create(defaultUser, dto);
-      expect(service.upsert).toBeCalledWith({
+      expect(userService.createIfNotExists).toBeCalledWith({
+        id: defaultUser.id,
+        email: defaultUser.email as string,
+      });
+    });
+
+    it('should call upsert', async () => {
+      jest.spyOn(profileService, 'upsert');
+      await controller.create(defaultUser, dto);
+      expect(profileService.upsert).toBeCalledWith({
         ...dto,
         userId: defaultUser.id,
       });
@@ -71,7 +84,9 @@ describe('ProfileController', () => {
         isActive: true,
       };
 
-      jest.spyOn(service, 'upsert').mockImplementation(async () => response);
+      jest
+        .spyOn(profileService, 'upsert')
+        .mockImplementation(async () => response);
       const actual = await controller.create(defaultUser, dto);
       expect(actual).toMatchObject(response);
     });
@@ -90,9 +105,9 @@ describe('ProfileController', () => {
     });
 
     it('should call findOne', async () => {
-      jest.spyOn(service, 'findOne');
+      jest.spyOn(profileService, 'findOne');
       await controller.findOne(defaultUser);
-      expect(service.findOne).toBeCalledWith(defaultUser.id);
+      expect(profileService.findOne).toBeCalledWith(defaultUser.id);
     });
 
     it('should call return result of findOne', async () => {
@@ -104,7 +119,9 @@ describe('ProfileController', () => {
         isActive: true,
       };
 
-      jest.spyOn(service, 'findOne').mockImplementation(async () => response);
+      jest
+        .spyOn(profileService, 'findOne')
+        .mockImplementation(async () => response);
       const actual = await controller.findOne(defaultUser);
       expect(actual).toMatchObject(response);
     });
@@ -112,9 +129,9 @@ describe('ProfileController', () => {
 
   describe('remove', () => {
     it('should call remove', async () => {
-      jest.spyOn(service, 'remove');
+      jest.spyOn(profileService, 'remove');
       await controller.remove(defaultUser);
-      expect(service.remove).toBeCalledWith(defaultUser.id);
+      expect(profileService.remove).toBeCalledWith(defaultUser.id);
     });
   });
 });
