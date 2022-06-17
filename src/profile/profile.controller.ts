@@ -8,6 +8,11 @@ import { UserDto } from '../auth/dtos';
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
+  @Get()
+  async findOne(@CurrentUser() currentUser: UserDto) {
+    return await this.profileService.findOne(currentUser.id);
+  }
+
   @Post()
   async create(
     @CurrentUser() currentUser: UserDto,
@@ -17,11 +22,6 @@ export class ProfileController {
       ...dto,
       userId: currentUser.id,
     });
-  }
-
-  @Get()
-  async findOne(@CurrentUser() currentUser: UserDto) {
-    return await this.profileService.findOne(currentUser.id);
   }
 
   @Delete()

@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaClient, Profile } from '@prisma/client';
-import { User } from '@supabase/supabase-js';
+import { prismaMock } from '../../test/helpers/singleton';
+import { UserDto } from '../auth/dtos';
 import { UpsertProfileDto } from './dto/upsert-profile.dto';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 
-const defaultUser: User = {
+const defaultUser: UserDto = {
   id: 'id',
   email: 'test@test.com',
   app_metadata: {},
@@ -23,7 +24,13 @@ describe('ProfileController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProfileController],
-      providers: [ProfileService, PrismaClient],
+      providers: [
+        ProfileService,
+        {
+          provide: PrismaClient,
+          useValue: prismaMock,
+        },
+      ],
     }).compile();
 
     controller = module.get<ProfileController>(ProfileController);

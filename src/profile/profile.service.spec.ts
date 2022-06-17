@@ -56,7 +56,7 @@ describe('ProfileService', () => {
   });
 
   describe('upsert', () => {
-    let data: Prisma.ProfileUpdateInput;
+    let data: Prisma.ProfileUncheckedCreateInput;
 
     beforeEach(() => {
       data = {
@@ -70,20 +70,20 @@ describe('ProfileService', () => {
 
       expect(prismaMock.profile.upsert).toBeCalledWith({
         where: {
-          userId: data.userId as string,
+          userId: data.userId,
         },
         update: {
           username: data.username,
           firstName: data.firstName,
           lastName: data.lastName,
-          profileImageSrc: data.profileImageSrc ?? '',
+          profileImageSrc: data.profileImageSrc,
         },
         create: {
-          userId: data.userId as string,
-          username: data.username as string,
-          firstName: data.firstName as string,
-          lastName: data.lastName as string,
-          profileImageSrc: data.profileImageSrc?.toString() ?? '',
+          userId: data.userId,
+          username: data.username,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          profileImageSrc: data.profileImageSrc,
         },
       });
     });

@@ -13,23 +13,23 @@ export class ProfileService {
     });
   }
 
-  async upsert(data: Prisma.ProfileUpdateInput): Promise<Profile> {
+  async upsert(data: Prisma.ProfileUncheckedCreateInput): Promise<Profile> {
     return await this.prisma.profile.upsert({
       where: {
-        userId: data.userId as string,
+        userId: data.userId,
       },
       update: {
         username: data.username,
         firstName: data.firstName,
         lastName: data.lastName,
-        profileImageSrc: data.profileImageSrc ?? '',
+        profileImageSrc: data.profileImageSrc,
       },
       create: {
-        userId: data.userId as string,
-        username: data.username as string,
-        firstName: data.firstName as string,
-        lastName: data.lastName as string,
-        profileImageSrc: data.profileImageSrc?.toString() ?? '',
+        userId: data.userId,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        profileImageSrc: data.profileImageSrc,
       },
     });
   }
