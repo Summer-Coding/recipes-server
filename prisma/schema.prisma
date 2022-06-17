@@ -29,7 +29,7 @@ model Profile {
   userId          String  @unique @map("user_id")
   isActive        Boolean @default(true) @map("is_active")
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   @@map("profiles")
 }
 
