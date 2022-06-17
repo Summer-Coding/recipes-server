@@ -1,49 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { SupabaseClient, User } from '@supabase/supabase-js';
-import { UserDto } from 'src/auth/dtos';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 
 @Injectable()
 export class AdminService {
   constructor(private supabase: SupabaseClient, private prisma: PrismaClient) {}
 
-  async getAllUsers(): Promise<Array<User>> {
+  async getAllUserIds(): Promise<Array<string>> {
     const { data, error } = await this.supabase.auth.api.listUsers();
     if (error) {
       throw new Error('could not get users');
     }
 
-    return data;
+    return data.map((u) => u.id);
   }
 
   async getAllProfiles(
-    users: UserDto[],
+    userIds: string[],
   ): Promise<Array<UserProfileListItemDto>> {
     const profiles = await this.prisma.profile.findMany({
       where: {
         userId: {
-          in: users.map((x) => x.id),
+          in: userIds,
         },
+      },
+      orderBy: {
+        username: 'desc',
       },
       select: {
         id: true,
+        userId: true,
         firstName: true,
         lastName: true,
         username: true,
-        userId: true,
         isActive: true,
+        user: {
+          select: {
+            email: true,
+            roles: {
+              select: {
+                role: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    return profiles.map((profile) => {
-      const user = users.find((u) => u.id == profile.userId);
-      return {
-        ...profile,
-        roles: user?.user_metadata?.roles ?? [],
-        email: user?.email,
-      } as UserProfileListItemDto;
-    });
+    return profiles.map((profile) => ({
+      ...profile,
+      email: profile?.user?.email,
+      roles: profile?.user?.roles?.map((r) => r.role),
+    }));
   }
 
   async setUserToAdmin(dto: SetAdminDto): Promise<void> {

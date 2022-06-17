@@ -4,7 +4,7 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
 import { UserDto } from '../auth/dtos';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 
 describe('AdminController', () => {
@@ -53,7 +53,7 @@ describe('AdminController', () => {
         id: 'id',
         app_metadata: {},
         user_metadata: {
-          roles: ['user'],
+          roles: [Role.USER],
         },
         aud: 'aud',
         created_at: 'createdAt',
@@ -61,41 +61,42 @@ describe('AdminController', () => {
 
       currentUserProfile = {
         id: 'id',
-        roles: ['user'],
+        roles: [Role.USER],
         isActive: true,
         firstName: 'firstName',
         lastName: 'lastName',
         username: 'username',
         email: 'test@test.com',
+        userId: 'userId',
       };
     });
 
-    it('should call getAllUsers', async () => {
+    it('should call getAllUserIds', async () => {
       jest
-        .spyOn(service, 'getAllUsers')
-        .mockImplementation(async () => [currentUser]);
+        .spyOn(service, 'getAllUserIds')
+        .mockImplementation(async () => [currentUser.id]);
 
       await controller.getAllUsers();
-      expect(service.getAllUsers).toBeCalled();
+      expect(service.getAllUserIds).toBeCalled();
     });
 
     it('should call getAllProfiles', async () => {
       jest
-        .spyOn(service, 'getAllUsers')
-        .mockImplementation(async () => [currentUser]);
+        .spyOn(service, 'getAllUserIds')
+        .mockImplementation(async () => [currentUser.id]);
 
       jest
         .spyOn(service, 'getAllProfiles')
         .mockImplementation(async () => [currentUserProfile]);
 
       await controller.getAllUsers();
-      expect(service.getAllProfiles).toBeCalledWith([currentUser]);
+      expect(service.getAllProfiles).toBeCalledWith([currentUser.id]);
     });
 
-    it('should return result of getAllUsers', async () => {
+    it('should return result of getAllUserIds', async () => {
       jest
-        .spyOn(service, 'getAllUsers')
-        .mockImplementation(async () => [currentUser]);
+        .spyOn(service, 'getAllUserIds')
+        .mockImplementation(async () => [currentUser.id]);
 
       jest
         .spyOn(service, 'getAllProfiles')

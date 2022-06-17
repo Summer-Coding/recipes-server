@@ -2,10 +2,26 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ApiError, SupabaseClient, User } from '@supabase/supabase-js';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
-import { PrismaClient, Profile } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import { UserDto } from 'src/auth/dtos';
 import { UserProfileListItemDto } from './dtos';
 import { prismaMock } from '../../test/helpers/singleton';
+
+type UserProfileType = {
+  userId: string;
+  user: {
+    roles: {
+      role: Role;
+    }[];
+    email: string;
+  };
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  isActive: boolean;
+  profileImageSrc: string | null;
+};
 
 type SupabaseGetUserResult =
   | { data: User; error: null }
@@ -21,7 +37,7 @@ const defaultError: ApiError = {
 };
 
 const defaultUser: User = {
-  id: 'id',
+  id: 'userId',
   email: 'test@test.com',
   app_metadata: {},
   user_metadata: {
@@ -76,7 +92,7 @@ describe('AdminService', () => {
       jest.spyOn(supabase.auth.api, 'listUsers');
 
       try {
-        await service.getAllUsers();
+        await service.getAllUserIds();
       } catch {}
 
       expect(supabase.auth.api.listUsers).toBeCalled();
@@ -97,7 +113,7 @@ describe('AdminService', () => {
         .mockImplementation(async () => listUsersResponse);
 
       try {
-        await service.getAllUsers();
+        await service.getAllUserIds();
       } catch (error) {
         expect(error).toMatchObject(new Error('could not get users'));
       }
@@ -117,62 +133,84 @@ describe('AdminService', () => {
         .spyOn(supabase.auth.api, 'listUsers')
         .mockImplementation(async () => listUsersResponse);
 
-      const actual = await service.getAllUsers();
-      expect(actual).toMatchObject([defaultUser]);
+      const actual = await service.getAllUserIds();
+      expect(actual).toMatchObject([defaultUser.id]);
     });
   });
 
   describe('getAllProfiles', () => {
     let users: UserDto[];
-    let profile: Profile;
+    let profile: UserProfileType;
 
     beforeEach(() => {
       users = [defaultUser];
       profile = {
-        id: 'id',
+        id: 'profileId',
         firstName: 'firstName',
         lastName: 'lastName',
         username: 'username',
         isActive: true,
-        profileImageSrc: '',
         userId: defaultUser.id,
+        profileImageSrc: null,
+        user: {
+          email: defaultUser.email as string,
+          roles: [
+            {
+              role: Role.USER,
+            },
+          ],
+        },
       };
     });
 
     it('should call findMany', async () => {
       prismaMock.profile.findMany.mockResolvedValue([profile]);
-      await service.getAllProfiles([defaultUser]);
+      await service.getAllProfiles([defaultUser.id]);
 
       expect(prismaMock.profile.findMany).toBeCalledWith({
         where: {
           userId: {
-            in: users.map((x) => x.id),
+            in: [defaultUser.id],
           },
+        },
+        orderBy: {
+          username: 'desc',
         },
         select: {
           id: true,
+          userId: true,
           firstName: true,
           lastName: true,
           username: true,
-          userId: true,
           isActive: true,
+          user: {
+            select: {
+              email: true,
+              roles: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
         },
       });
     });
 
     it('should return data from result and from users', async () => {
       const userProfiles: UserProfileListItemDto = {
-        id: defaultUser.id,
-        firstName: profile.firstName as string,
-        lastName: profile.lastName as string,
+        id: 'profileId',
+        userId: defaultUser.id,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
         username: profile.username,
         isActive: profile.isActive,
         email: defaultUser.email as string,
-        roles: defaultUser.user_metadata.roles,
+        roles: [Role.USER],
       };
 
       prismaMock.profile.findMany.mockResolvedValue([profile]);
-      const actual = await service.getAllProfiles([defaultUser]);
+      const actual = await service.getAllProfiles([defaultUser.id]);
       expect(actual[0]).toMatchObject(userProfiles);
     });
   });
