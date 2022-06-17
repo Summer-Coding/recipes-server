@@ -58,7 +58,7 @@ describe('ProfileController', () => {
     });
 
     it('should call createIfNotExists', async () => {
-      jest.spyOn(userService, 'createIfNotExists');
+      jest.spyOn(userService, 'createIfNotExists').mockImplementation();
       await controller.create(defaultUser, dto);
       expect(userService.createIfNotExists).toBeCalledWith({
         id: defaultUser.id,
@@ -67,7 +67,7 @@ describe('ProfileController', () => {
     });
 
     it('should call upsert', async () => {
-      jest.spyOn(profileService, 'upsert');
+      jest.spyOn(profileService, 'upsert').mockImplementation();
       await controller.create(defaultUser, dto);
       expect(profileService.upsert).toBeCalledWith({
         ...dto,
@@ -84,9 +84,7 @@ describe('ProfileController', () => {
         isActive: true,
       };
 
-      jest
-        .spyOn(profileService, 'upsert')
-        .mockImplementation(async () => response);
+      jest.spyOn(profileService, 'upsert').mockResolvedValue(response);
       const actual = await controller.create(defaultUser, dto);
       expect(actual).toMatchObject(response);
     });
@@ -105,7 +103,7 @@ describe('ProfileController', () => {
     });
 
     it('should call findOne', async () => {
-      jest.spyOn(profileService, 'findOne');
+      jest.spyOn(profileService, 'findOne').mockImplementation();
       await controller.findOne(defaultUser);
       expect(profileService.findOne).toBeCalledWith(defaultUser.id);
     });
@@ -119,9 +117,7 @@ describe('ProfileController', () => {
         isActive: true,
       };
 
-      jest
-        .spyOn(profileService, 'findOne')
-        .mockImplementation(async () => response);
+      jest.spyOn(profileService, 'findOne').mockResolvedValue(response);
       const actual = await controller.findOne(defaultUser);
       expect(actual).toMatchObject(response);
     });
@@ -129,7 +125,7 @@ describe('ProfileController', () => {
 
   describe('remove', () => {
     it('should call remove', async () => {
-      jest.spyOn(profileService, 'remove');
+      jest.spyOn(profileService, 'remove').mockImplementation();
       await controller.remove(defaultUser);
       expect(profileService.remove).toBeCalledWith(defaultUser.id);
     });

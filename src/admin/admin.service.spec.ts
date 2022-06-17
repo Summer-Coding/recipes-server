@@ -4,7 +4,7 @@ import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
 import { PrismaClient, Role } from '@prisma/client';
 import { UserDto } from 'src/auth/dtos';
-import { UserProfileListItemDto } from './dtos';
+import { SetAdminDto, UserProfileListItemDto } from './dtos';
 import { prismaMock } from '../../test/helpers/singleton';
 
 type UserProfileType = {
@@ -82,14 +82,14 @@ describe('AdminService', () => {
         error: null,
         data: { ...defaultUser },
       };
+
+      jest
+        .spyOn(supabase.auth.api, 'getUserById')
+        .mockResolvedValue(userResponse);
     });
 
     it('should call listUsers if roles includes admin', async () => {
-      jest
-        .spyOn(supabase.auth.api, 'getUserById')
-        .mockImplementation(async () => userResponse);
-
-      jest.spyOn(supabase.auth.api, 'listUsers');
+      jest.spyOn(supabase.auth.api, 'listUsers').mockImplementation();
 
       try {
         await service.getAllUserIds();
@@ -103,10 +103,6 @@ describe('AdminService', () => {
         error: { ...defaultError },
         data: null,
       };
-
-      jest
-        .spyOn(supabase.auth.api, 'getUserById')
-        .mockImplementation(async () => userResponse);
 
       jest
         .spyOn(supabase.auth.api, 'listUsers')
@@ -124,10 +120,6 @@ describe('AdminService', () => {
         error: null,
         data: [{ ...defaultUser }],
       };
-
-      jest
-        .spyOn(supabase.auth.api, 'getUserById')
-        .mockImplementation(async () => userResponse);
 
       jest
         .spyOn(supabase.auth.api, 'listUsers')
@@ -216,16 +208,34 @@ describe('AdminService', () => {
   });
 
   describe('setUserToAdmin', () => {
-    it('should call updateUserById', async () => {
-      const authDto = {
+    let authDto: SetAdminDto;
+
+    beforeEach(() => {
+      authDto = {
         id: 'newAdminId',
       };
-      jest.spyOn(supabase.auth.api, 'updateUserById');
 
+      jest.spyOn(supabase.auth.api, 'updateUserById').mockImplementation();
+      prismaMock.userRole.create.mockImplementation();
+    });
+
+    it('should call updateUserById', async () => {
       await service.setUserToAdmin(authDto);
+
       expect(supabase.auth.api.updateUserById).toBeCalledWith(authDto.id, {
         user_metadata: {
           roles: ['user', 'admin'],
+        },
+      });
+    });
+
+    it('should call create', async () => {
+      await service.setUserToAdmin(authDto);
+
+      expect(prismaMock.userRole.create).toBeCalledWith({
+        data: {
+          userId: authDto.id,
+          role: Role.ADMIN,
         },
       });
     });

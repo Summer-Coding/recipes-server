@@ -54,18 +54,15 @@ describe('AuthController', () => {
       };
 
       response = { accessToken: 'accessToken' };
+      jest.spyOn(service, 'signIn').mockResolvedValue(response);
     });
 
     it('should call signIn', async () => {
-      jest.spyOn(service, 'signIn').mockImplementation(async () => response);
-
       await controller.login(authDto);
       expect(service.signIn).toBeCalledWith(authDto);
     });
 
     it('should respond with signIn response', async () => {
-      jest.spyOn(service, 'signIn').mockImplementation(async () => response);
-
       const actual = await controller.login(authDto);
       expect(actual).toBe(response);
     });

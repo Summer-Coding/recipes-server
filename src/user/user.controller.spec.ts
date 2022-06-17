@@ -78,9 +78,7 @@ describe('UserController', () => {
         isActive: true,
       };
 
-      jest
-        .spyOn(service, 'updateEmail')
-        .mockImplementation(async () => userResponse);
+      jest.spyOn(service, 'updateEmail').mockResolvedValue(userResponse);
     });
 
     it('should call updateEmail', async () => {

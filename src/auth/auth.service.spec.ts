@@ -88,9 +88,7 @@ describe('AuthService', () => {
     });
 
     it('should call signIn', async () => {
-      jest
-        .spyOn(supabase.auth, 'signIn')
-        .mockImplementation(async () => signInResult);
+      jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       try {
         await service.signIn(authDto);
@@ -105,9 +103,7 @@ describe('AuthService', () => {
         message: 'unauthorized',
       };
 
-      jest
-        .spyOn(supabase.auth, 'signIn')
-        .mockImplementation(async () => signInResult);
+      jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       try {
         await service.signIn(authDto);
@@ -119,9 +115,7 @@ describe('AuthService', () => {
     });
 
     it('should throw error if session null', async () => {
-      jest
-        .spyOn(supabase.auth, 'signIn')
-        .mockImplementation(async () => signInResult);
+      jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       try {
         await service.signIn(authDto);
@@ -134,10 +128,7 @@ describe('AuthService', () => {
 
     it('should return accessToken if successful', async () => {
       signInResult.session = session;
-
-      jest
-        .spyOn(supabase.auth, 'signIn')
-        .mockImplementation(async () => signInResult);
+      jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       const result = await service.signIn(authDto);
 

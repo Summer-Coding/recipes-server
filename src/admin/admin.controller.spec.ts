@@ -69,39 +69,24 @@ describe('AdminController', () => {
         email: 'test@test.com',
         userId: 'userId',
       };
+
+      jest.spyOn(service, 'getAllUserIds').mockResolvedValue([currentUser.id]);
+      jest
+        .spyOn(service, 'getAllProfiles')
+        .mockResolvedValue([currentUserProfile]);
     });
 
     it('should call getAllUserIds', async () => {
-      jest
-        .spyOn(service, 'getAllUserIds')
-        .mockImplementation(async () => [currentUser.id]);
-
       await controller.getAllUsers();
       expect(service.getAllUserIds).toBeCalled();
     });
 
     it('should call getAllProfiles', async () => {
-      jest
-        .spyOn(service, 'getAllUserIds')
-        .mockImplementation(async () => [currentUser.id]);
-
-      jest
-        .spyOn(service, 'getAllProfiles')
-        .mockImplementation(async () => [currentUserProfile]);
-
       await controller.getAllUsers();
       expect(service.getAllProfiles).toBeCalledWith([currentUser.id]);
     });
 
     it('should return result of getAllUserIds', async () => {
-      jest
-        .spyOn(service, 'getAllUserIds')
-        .mockImplementation(async () => [currentUser.id]);
-
-      jest
-        .spyOn(service, 'getAllProfiles')
-        .mockImplementation(async () => [currentUserProfile]);
-
       const actual = await controller.getAllUsers();
       expect(actual).toMatchObject([currentUserProfile]);
     });
@@ -110,7 +95,7 @@ describe('AdminController', () => {
   describe('setUserToAdmin', () => {
     it('should call create', async () => {
       const dto: SetAdminDto = { id: 'id' };
-      jest.spyOn(service, 'setUserToAdmin');
+      jest.spyOn(service, 'setUserToAdmin').mockImplementation();
 
       await controller.create(dto);
       expect(service.setUserToAdmin).toBeCalledWith({
