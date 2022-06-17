@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma, PrismaClient, User } from '@prisma/client';
+import { Prisma, PrismaClient, Role, User } from '@prisma/client';
 import { prismaMock } from '../../test/helpers/singleton';
 import { UserService } from './user.service';
 
@@ -69,6 +69,11 @@ describe('UserService', () => {
         data: {
           id: userCreateInput.id,
           email: userCreateInput.email,
+          roles: {
+            create: {
+              role: Role.USER,
+            },
+          },
         },
       });
     });
