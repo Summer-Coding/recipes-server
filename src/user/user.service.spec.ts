@@ -89,6 +89,9 @@ describe('UserService', () => {
       await service.findOne(userWhereUnique);
       expect(prismaMock.user.findUnique).toBeCalledWith({
         where: userWhereUnique,
+        include: {
+          roles: true,
+        },
       });
     });
 
