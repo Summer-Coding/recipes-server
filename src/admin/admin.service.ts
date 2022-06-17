@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import { SupabaseClient, User } from '@supabase/supabase-js';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 
@@ -59,6 +59,13 @@ export class AdminService {
     await this.supabase.auth.api.updateUserById(dto.id, {
       user_metadata: {
         roles: ['user', 'admin'],
+      },
+    });
+
+    await this.prisma.userRole.create({
+      data: {
+        userId: dto.id,
+        role: Role.ADMIN,
       },
     });
   }
