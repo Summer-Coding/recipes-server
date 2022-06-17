@@ -11,23 +11,13 @@ datasource db {
 }
 
 model User {
-  id       String     @id
-  email    String     @unique
-  roles    UserRole[]
-  isActive Boolean    @default(true) @map("is_active")
+  id       String   @id
+  email    String   @unique
+  roles    Role[]
+  isActive Boolean  @default(true) @map("is_active")
   profile  Profile?
 
   @@map("users")
-}
-
-model UserRole {
-  userId String @map("user_id")
-  role   Role
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@id([userId, role])
-  @@map("user_roles")
 }
 
 model Profile {
