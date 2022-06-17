@@ -1,30 +1,26 @@
-import { Controller, Get, Post, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Delete, Patch, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserDto } from '../auth/dtos';
+import { UpdateEmailDto } from './dtos/update-email.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post()
-  async create(@CurrentUser() currentUser: UserDto) {
-    return await this.userService.create({
-      id: currentUser.id,
-      email: currentUser.email!,
-    });
-  }
 
   @Get('whoami')
   async findOne(@CurrentUser() currentUser: UserDto) {
     return await this.userService.findOne({ id: currentUser.id });
   }
 
-  @Put()
-  async update(@CurrentUser() currentUser: UserDto) {
+  @Patch('email')
+  async updateEmail(
+    @CurrentUser() currentUser: UserDto,
+    @Body() updateEmailDto: UpdateEmailDto,
+  ) {
     return await this.userService.updateEmail(
       { id: currentUser.id },
-      currentUser.email!,
+      updateEmailDto.email,
     );
   }
 

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaClient, User } from '@prisma/client';
 import { UserDto } from 'src/auth/dtos';
+import { UpdateEmailDto } from './dtos/update-email.dto';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
@@ -18,7 +19,6 @@ const defaultUserDto: UserDto = {
 const defaultPrismaUser: User = {
   id: 'userId',
   email: 'email',
-  role: 'USER',
   isActive: true,
 };
 
@@ -38,31 +38,6 @@ describe('UserController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-  });
-
-  describe('create', () => {
-    let currentUser: UserDto;
-
-    beforeEach(() => {
-      currentUser = { ...defaultUserDto };
-
-      jest
-        .spyOn(service, 'create')
-        .mockImplementation(async () => defaultPrismaUser);
-    });
-
-    it('should call create', async () => {
-      await controller.create(currentUser);
-      expect(service.create).toBeCalledWith({
-        id: defaultUserDto.id,
-        email: defaultUserDto.email,
-      });
-    });
-
-    it('should respond with User', async () => {
-      const actual = await controller.create(currentUser);
-      expect(actual).toMatchObject(defaultPrismaUser);
-    });
   });
 
   describe('findOne', () => {
@@ -91,28 +66,36 @@ describe('UserController', () => {
 
   describe('update', () => {
     let currentUser: UserDto;
+    let updateEmailDto: UpdateEmailDto;
+    let userResponse: User;
 
     beforeEach(() => {
       currentUser = { ...defaultUserDto };
+      updateEmailDto = { email: 'email1' };
+      userResponse = {
+        ...currentUser,
+        email: updateEmailDto.email,
+        isActive: true,
+      };
 
       jest
         .spyOn(service, 'updateEmail')
-        .mockImplementation(async () => defaultPrismaUser);
+        .mockImplementation(async () => userResponse);
     });
 
     it('should call updateEmail', async () => {
-      await controller.update(currentUser);
+      await controller.updateEmail(currentUser, updateEmailDto);
       expect(service.updateEmail).toBeCalledWith(
         {
           id: defaultUserDto.id,
         },
-        defaultUserDto.email,
+        updateEmailDto.email,
       );
     });
 
     it('should respond with User', async () => {
-      const actual = await controller.update(currentUser);
-      expect(actual).toMatchObject(defaultPrismaUser);
+      const actual = await controller.updateEmail(currentUser, updateEmailDto);
+      expect(actual).toMatchObject(userResponse);
     });
   });
 

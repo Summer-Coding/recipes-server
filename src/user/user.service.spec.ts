@@ -6,7 +6,6 @@ import { UserService } from './user.service';
 const defaultUser: User = {
   id: 'id',
   email: 'email',
-  role: 'USER',
   isActive: true,
 };
 
@@ -31,7 +30,7 @@ describe('UserService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
+  describe('createIfNotExists', () => {
     let userCreateInput: Prisma.UserCreateInput;
 
     beforeEach(() => {
@@ -43,19 +42,35 @@ describe('UserService', () => {
       prismaMock.user.create.mockResolvedValue(defaultUser);
     });
 
-    it('should call create', async () => {
-      await service.create(userCreateInput);
+    it('should call count', async () => {
+      prismaMock.user.count.mockResolvedValue(0);
+      await service.createIfNotExists(userCreateInput);
+
+      expect(prismaMock.user.count).toBeCalledWith({
+        where: {
+          id: userCreateInput.id,
+        },
+      });
+    });
+
+    it('should not call create when count is 1', async () => {
+      prismaMock.user.count.mockResolvedValue(1);
+      prismaMock.user.create.mockImplementation();
+      await service.createIfNotExists(userCreateInput);
+      expect(prismaMock.user.create).not.toBeCalled();
+    });
+
+    it('should not call create when count is 0', async () => {
+      prismaMock.user.count.mockResolvedValue(0);
+      prismaMock.user.create.mockImplementation();
+      await service.createIfNotExists(userCreateInput);
+
       expect(prismaMock.user.create).toBeCalledWith({
         data: {
           id: userCreateInput.id,
           email: userCreateInput.email,
         },
       });
-    });
-
-    it('should return result', async () => {
-      const actual = await service.create(userCreateInput);
-      expect(actual).toMatchObject(defaultUser);
     });
   });
 
