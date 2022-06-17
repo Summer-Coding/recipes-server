@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, Role, User } from '@prisma/client';
 import { UserDto } from 'src/auth/dtos';
 import { UpdateEmailDto } from './dtos/update-email.dto';
 import { UserController } from './user.controller';
@@ -20,6 +20,7 @@ const defaultPrismaUser: User = {
   id: 'userId',
   email: 'email',
   isActive: true,
+  roles: [Role.USER],
 };
 
 describe('UserController', () => {
@@ -76,6 +77,7 @@ describe('UserController', () => {
         ...currentUser,
         email: updateEmailDto.email,
         isActive: true,
+        roles: [Role.USER],
       };
 
       jest.spyOn(service, 'updateEmail').mockResolvedValue(userResponse);

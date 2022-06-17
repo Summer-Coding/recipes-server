@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, Role } from '@prisma/client';
-import { SupabaseClient, User } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 
 @Injectable()
@@ -38,11 +38,7 @@ export class AdminService {
         user: {
           select: {
             email: true,
-            roles: {
-              select: {
-                role: true,
-              },
-            },
+            roles: true,
           },
         },
       },
@@ -51,7 +47,7 @@ export class AdminService {
     return profiles.map((profile) => ({
       ...profile,
       email: profile?.user?.email,
-      roles: profile?.user?.roles?.map((r) => r.role),
+      roles: profile?.user?.roles,
     }));
   }
 
@@ -62,10 +58,14 @@ export class AdminService {
       },
     });
 
-    await this.prisma.userRole.create({
+    await this.prisma.user.update({
+      where: {
+        id: dto.id,
+      },
       data: {
-        userId: dto.id,
-        role: Role.ADMIN,
+        roles: {
+          push: Role.ADMIN,
+        },
       },
     });
   }

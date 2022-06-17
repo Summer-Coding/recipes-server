@@ -24,11 +24,7 @@ export class UserService {
       data: {
         id: userCreateInput.id,
         email: userCreateInput.email,
-        roles: {
-          create: {
-            role: Role.USER,
-          },
-        },
+        roles: [Role.USER],
       },
     });
   }
@@ -38,9 +34,6 @@ export class UserService {
   ): Promise<User | null> {
     return await this.prisma.user.findUnique({
       where: userWhereUnique,
-      include: {
-        roles: true,
-      },
     });
   }
 

@@ -10,9 +10,7 @@ import { prismaMock } from '../../test/helpers/singleton';
 type UserProfileType = {
   userId: string;
   user: {
-    roles: {
-      role: Role;
-    }[];
+    roles: Role[];
     email: string;
   };
   id: string;
@@ -146,11 +144,7 @@ describe('AdminService', () => {
         profileImageSrc: null,
         user: {
           email: defaultUser.email as string,
-          roles: [
-            {
-              role: Role.USER,
-            },
-          ],
+          roles: [Role.USER],
         },
       };
     });
@@ -178,11 +172,7 @@ describe('AdminService', () => {
           user: {
             select: {
               email: true,
-              roles: {
-                select: {
-                  role: true,
-                },
-              },
+              roles: true,
             },
           },
         },
@@ -216,7 +206,7 @@ describe('AdminService', () => {
       };
 
       jest.spyOn(supabase.auth.api, 'updateUserById').mockImplementation();
-      prismaMock.userRole.create.mockImplementation();
+      prismaMock.user.update.mockImplementation();
     });
 
     it('should call updateUserById', async () => {
@@ -232,10 +222,14 @@ describe('AdminService', () => {
     it('should call create', async () => {
       await service.setUserToAdmin(authDto);
 
-      expect(prismaMock.userRole.create).toBeCalledWith({
+      expect(prismaMock.user.update).toBeCalledWith({
+        where: {
+          id: authDto.id,
+        },
         data: {
-          userId: authDto.id,
-          role: Role.ADMIN,
+          roles: {
+            push: Role.ADMIN,
+          },
         },
       });
     });

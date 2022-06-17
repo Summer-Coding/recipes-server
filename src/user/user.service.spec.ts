@@ -7,6 +7,7 @@ const defaultUser: User = {
   id: 'id',
   email: 'email',
   isActive: true,
+  roles: [Role.USER],
 };
 
 describe('UserService', () => {
@@ -69,11 +70,7 @@ describe('UserService', () => {
         data: {
           id: userCreateInput.id,
           email: userCreateInput.email,
-          roles: {
-            create: {
-              role: Role.USER,
-            },
-          },
+          roles: [Role.USER],
         },
       });
     });
@@ -94,9 +91,6 @@ describe('UserService', () => {
       await service.findOne(userWhereUnique);
       expect(prismaMock.user.findUnique).toBeCalledWith({
         where: userWhereUnique,
-        include: {
-          roles: true,
-        },
       });
     });
 
