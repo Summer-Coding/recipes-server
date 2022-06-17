@@ -199,17 +199,31 @@ describe('AdminService', () => {
 
   describe('setUserToAdmin', () => {
     let authDto: SetAdminDto;
+    let userData: UserDto;
 
     beforeEach(() => {
       authDto = {
         id: 'newAdminId',
       };
 
-      jest.spyOn(supabase.auth.api, 'updateUserById').mockImplementation();
+      userData = {
+        id: authDto.id,
+        aud: 'aud',
+        app_metadata: {},
+        user_metadata: {},
+        created_at: 'createdAt',
+      };
+
       prismaMock.user.update.mockImplementation();
     });
 
     it('should call updateUserById', async () => {
+      jest.spyOn(supabase.auth.api, 'updateUserById').mockResolvedValue({
+        user: userData,
+        error: null,
+        data: userData,
+      });
+
       await service.setUserToAdmin(authDto);
 
       expect(supabase.auth.api.updateUserById).toBeCalledWith(authDto.id, {
@@ -219,7 +233,30 @@ describe('AdminService', () => {
       });
     });
 
+    it('should throw error when error', async () => {
+      jest.spyOn(supabase.auth.api, 'updateUserById').mockResolvedValue({
+        user: null,
+        error: {
+          status: 404,
+          message: 'User not found',
+        },
+        data: null,
+      });
+
+      try {
+        await service.setUserToAdmin(authDto);
+      } catch (error) {
+        expect(error).toMatchObject(new Error('could not set user to admin'));
+      }
+    });
+
     it('should call create', async () => {
+      jest.spyOn(supabase.auth.api, 'updateUserById').mockResolvedValue({
+        user: userData,
+        error: null,
+        data: userData,
+      });
+
       await service.setUserToAdmin(authDto);
 
       expect(prismaMock.user.update).toBeCalledWith({

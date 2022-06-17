@@ -52,15 +52,22 @@ export class AdminService {
   }
 
   async setUserToAdmin(dto: SetAdminDto): Promise<void> {
-    await this.supabase.auth.api.updateUserById(dto.id, {
-      user_metadata: {
-        roles: ['user', 'admin'],
+    const { user, error } = await this.supabase.auth.api.updateUserById(
+      dto.id,
+      {
+        user_metadata: {
+          roles: ['user', 'admin'],
+        },
       },
-    });
+    );
+
+    if (error || user === null) {
+      throw new Error('could not set user to admin');
+    }
 
     await this.prisma.user.update({
       where: {
-        id: dto.id,
+        id: user.id,
       },
       data: {
         roles: {
