@@ -9,7 +9,8 @@ export class AdminService {
 
   async getAllUserIds(): Promise<Array<string>> {
     const { data, error } = await this.supabase.auth.api.listUsers();
-    if (error) {
+
+    if (error || !data) {
       throw new Error('could not get users');
     }
 
