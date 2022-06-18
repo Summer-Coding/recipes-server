@@ -70,9 +70,7 @@ export class AdminService {
         id: user.id,
       },
       data: {
-        roles: {
-          push: Role.ADMIN,
-        },
+        roles: [Role.USER, Role.ADMIN],
       },
     });
   }
