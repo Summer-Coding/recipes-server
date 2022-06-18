@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ApiError, SupabaseClient, User } from '@supabase/supabase-js';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
 import { PrismaClient, Role } from '@prisma/client';
@@ -19,19 +19,6 @@ type UserProfileType = {
   username: string;
   isActive: boolean;
   profileImageSrc: string | null;
-};
-
-type SupabaseGetUserResult =
-  | { data: User; error: null }
-  | { data: null; error: ApiError };
-
-type SupabaseGetUsersResult =
-  | { data: User[]; error: null }
-  | { data: null; error: ApiError };
-
-const defaultError: ApiError = {
-  status: 401,
-  message: 'unauthorized',
 };
 
 const defaultUser: User = {
@@ -72,62 +59,6 @@ describe('AdminService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('getAllUsers', () => {
-    let userResponse: SupabaseGetUserResult;
-
-    beforeEach(() => {
-      userResponse = {
-        error: null,
-        data: { ...defaultUser },
-      };
-
-      jest
-        .spyOn(supabase.auth.api, 'getUserById')
-        .mockResolvedValue(userResponse);
-    });
-
-    it('should call listUsers if roles includes admin', async () => {
-      jest.spyOn(supabase.auth.api, 'listUsers').mockImplementation();
-
-      try {
-        await service.getAllUserIds();
-      } catch {}
-
-      expect(supabase.auth.api.listUsers).toBeCalled();
-    });
-
-    it('should throw error if error is returned', async () => {
-      const listUsersResponse: SupabaseGetUsersResult = {
-        error: { ...defaultError },
-        data: null,
-      };
-
-      jest
-        .spyOn(supabase.auth.api, 'listUsers')
-        .mockImplementation(async () => listUsersResponse);
-
-      try {
-        await service.getAllUserIds();
-      } catch (error) {
-        expect(error).toMatchObject(new Error('could not get users'));
-      }
-    });
-
-    it('should return data from result', async () => {
-      const listUsersResponse: SupabaseGetUsersResult = {
-        error: null,
-        data: [{ ...defaultUser }],
-      };
-
-      jest
-        .spyOn(supabase.auth.api, 'listUsers')
-        .mockImplementation(async () => listUsersResponse);
-
-      const actual = await service.getAllUserIds();
-      expect(actual).toMatchObject([defaultUser.id]);
-    });
-  });
-
   describe('getAllProfiles', () => {
     let users: UserDto[];
     let profile: UserProfileType;
@@ -151,14 +82,9 @@ describe('AdminService', () => {
 
     it('should call findMany', async () => {
       prismaMock.profile.findMany.mockResolvedValue([profile]);
-      await service.getAllProfiles([defaultUser.id]);
+      await service.getAllProfiles();
 
       expect(prismaMock.profile.findMany).toBeCalledWith({
-        where: {
-          userId: {
-            in: [defaultUser.id],
-          },
-        },
         orderBy: {
           username: 'desc',
         },
@@ -192,7 +118,7 @@ describe('AdminService', () => {
       };
 
       prismaMock.profile.findMany.mockResolvedValue([profile]);
-      const actual = await service.getAllProfiles([defaultUser.id]);
+      const actual = await service.getAllProfiles();
       expect(actual[0]).toMatchObject(userProfiles);
     });
   });
@@ -264,9 +190,7 @@ describe('AdminService', () => {
           id: authDto.id,
         },
         data: {
-          roles: {
-            push: Role.ADMIN,
-          },
+          roles: [Role.USER, Role.ADMIN],
         },
       });
     });

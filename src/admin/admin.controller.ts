@@ -13,8 +13,7 @@ export class AdminController {
 
   @Get('users')
   async getAllUsers() {
-    const userIds = await this.adminService.getAllUserIds();
-    return await this.adminService.getAllProfiles(userIds);
+    return await this.adminService.getAllProfiles();
   }
 
   @Post('create')

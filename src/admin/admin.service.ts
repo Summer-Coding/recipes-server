@@ -7,25 +7,8 @@ import { SetAdminDto, UserProfileListItemDto } from './dtos';
 export class AdminService {
   constructor(private supabase: SupabaseClient, private prisma: PrismaClient) {}
 
-  async getAllUserIds(): Promise<Array<string>> {
-    const { data, error } = await this.supabase.auth.api.listUsers();
-
-    if (error || !data) {
-      throw new Error('could not get users');
-    }
-
-    return data.map((u) => u.id);
-  }
-
-  async getAllProfiles(
-    userIds: string[],
-  ): Promise<Array<UserProfileListItemDto>> {
+  async getAllProfiles(): Promise<Array<UserProfileListItemDto>> {
     const profiles = await this.prisma.profile.findMany({
-      where: {
-        userId: {
-          in: userIds,
-        },
-      },
       orderBy: {
         username: 'desc',
       },

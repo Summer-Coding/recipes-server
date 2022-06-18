@@ -6,6 +6,7 @@ import { MockSupabaseClient } from '../../test/helpers';
 import { UserDto } from '../auth/dtos';
 import { PrismaClient, Role } from '@prisma/client';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
+import { prismaMock } from '../../test/helpers/singleton';
 
 describe('AdminController', () => {
   let controller: AdminController;
@@ -24,7 +25,10 @@ describe('AdminController', () => {
       controllers: [AdminController],
       providers: [
         AdminService,
-        PrismaClient,
+        {
+          provide: PrismaClient,
+          useValue: prismaMock,
+        },
         {
           provide: SupabaseClient,
           useValue: new MockSupabaseClient('test', 'test'),
@@ -70,23 +74,17 @@ describe('AdminController', () => {
         userId: 'userId',
       };
 
-      jest.spyOn(service, 'getAllUserIds').mockResolvedValue([currentUser.id]);
       jest
         .spyOn(service, 'getAllProfiles')
         .mockResolvedValue([currentUserProfile]);
     });
 
-    it('should call getAllUserIds', async () => {
-      await controller.getAllUsers();
-      expect(service.getAllUserIds).toBeCalled();
-    });
-
     it('should call getAllProfiles', async () => {
       await controller.getAllUsers();
-      expect(service.getAllProfiles).toBeCalledWith([currentUser.id]);
+      expect(service.getAllProfiles).toBeCalled();
     });
 
-    it('should return result of getAllUserIds', async () => {
+    it('should return result of getAllProfiles', async () => {
       const actual = await controller.getAllUsers();
       expect(actual).toMatchObject([currentUserProfile]);
     });
