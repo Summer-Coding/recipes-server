@@ -6,18 +6,14 @@ import { SupabaseStrategy } from './strategies/supabase.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { APP_GUARD } from '@nestjs/core';
 import { SupabaseAuthGuard } from './guards/supabase.guard';
+import { ConfigService } from '@nestjs/config';
+import { SupabaseConfig } from '../environment';
 
 const options = {
   autoRefreshToken: true,
   persistSession: false,
   detectSessionInUrl: false,
 };
-
-const supabase = createClient(
-  process.env.SUPABASE_URL as string,
-  process.env.SUPABASE_KEY as string,
-  options,
-);
 
 @Module({
   imports: [PassportModule],
@@ -26,7 +22,12 @@ const supabase = createClient(
     SupabaseStrategy,
     {
       provide: SupabaseClient,
-      useValue: supabase,
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const supabaseConfig =
+          configService.getOrThrow<SupabaseConfig>('supabase');
+        createClient(supabaseConfig.url, supabaseConfig.key, options);
+      },
     },
     {
       provide: APP_GUARD,

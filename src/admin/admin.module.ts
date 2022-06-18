@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseConfig } from '../environment';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 
@@ -11,12 +13,6 @@ const options = {
   detectSessionInUrl: false,
 };
 
-const supabase = createClient(
-  process.env.SUPABASE_URL as string,
-  process.env.SUPABASE_PRIVATE_KEY as string,
-  options,
-);
-
 @Module({
   controllers: [AdminController],
   providers: [
@@ -24,7 +20,12 @@ const supabase = createClient(
     PrismaClient,
     {
       provide: SupabaseClient,
-      useValue: supabase,
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const supabaseConfig =
+          configService.getOrThrow<SupabaseConfig>('supabase');
+        createClient(supabaseConfig.url, supabaseConfig.privateKey, options);
+      },
     },
   ],
 })
