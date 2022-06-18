@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient, Profile } from '@prisma/client';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ProfileService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: PrismaClient, private authService: AuthService) {}
 
   async findOne(userId: string): Promise<Profile | null> {
     return await this.prisma.profile.findUnique({
@@ -14,6 +15,8 @@ export class ProfileService {
   }
 
   async upsert(data: Prisma.ProfileUncheckedCreateInput): Promise<Profile> {
+    await this.authService.setUsername(data.userId, data.username);
+
     return await this.prisma.profile.upsert({
       where: {
         userId: data.userId,

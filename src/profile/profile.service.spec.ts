@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma, PrismaClient, Profile } from '@prisma/client';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { MockSupabaseClient } from '../../test/helpers';
 import { prismaMock } from '../../test/helpers/singleton';
+import { AuthService } from '../auth/auth.service';
+import { UserService } from '../user/user.service';
 import { ProfileService } from './profile.service';
 
 const defaultProfile: Profile = {
@@ -14,24 +18,32 @@ const defaultProfile: Profile = {
 };
 
 describe('ProfileService', () => {
-  let service: ProfileService;
+  let profileService: ProfileService;
+  let authService: AuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        AuthService,
         ProfileService,
+        UserService,
         {
           provide: PrismaClient,
           useValue: prismaMock,
         },
+        {
+          provide: SupabaseClient,
+          useValue: new MockSupabaseClient('test', 'test'),
+        },
       ],
     }).compile();
 
-    service = module.get<ProfileService>(ProfileService);
+    profileService = module.get<ProfileService>(ProfileService);
+    authService = module.get<AuthService>(AuthService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(profileService).toBeDefined();
   });
 
   describe('findOne', () => {
@@ -39,7 +51,7 @@ describe('ProfileService', () => {
 
     it('should call findUnique', async () => {
       prismaMock.profile.findUnique.mockResolvedValue(defaultProfile);
-      await service.findOne(userId);
+      await profileService.findOne(userId);
 
       expect(prismaMock.profile.findUnique).toBeCalledWith({
         where: {
@@ -50,7 +62,7 @@ describe('ProfileService', () => {
 
     it('should return response from prisma', async () => {
       prismaMock.profile.findUnique.mockResolvedValue(defaultProfile);
-      const actual = await service.findOne(userId);
+      const actual = await profileService.findOne(userId);
       expect(actual).toMatchObject(defaultProfile);
     });
   });
@@ -62,11 +74,21 @@ describe('ProfileService', () => {
       data = {
         ...defaultProfile,
       };
+
+      jest.spyOn(authService, 'setUsername').mockImplementation();
+    });
+
+    it('should call setUsername', async () => {
+      await profileService.upsert(data);
+      expect(authService.setUsername).toBeCalledWith(
+        data.userId,
+        data.username,
+      );
     });
 
     it('should call upsert', async () => {
       prismaMock.profile.upsert.mockResolvedValue(defaultProfile);
-      await service.upsert(data);
+      await profileService.upsert(data);
 
       expect(prismaMock.profile.upsert).toBeCalledWith({
         where: {
@@ -90,7 +112,7 @@ describe('ProfileService', () => {
 
     it('should return response from prisma', async () => {
       prismaMock.profile.upsert.mockResolvedValue(defaultProfile);
-      const actual = await service.upsert(data);
+      const actual = await profileService.upsert(data);
       expect(actual).toMatchObject(data);
     });
   });
@@ -99,7 +121,7 @@ describe('ProfileService', () => {
     it('should call update', async () => {
       const userId = 'userId';
       prismaMock.profile.update;
-      await service.remove(userId);
+      await profileService.remove(userId);
 
       expect(prismaMock.profile.update).toBeCalledWith({
         where: {

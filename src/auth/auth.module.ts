@@ -8,17 +8,21 @@ import { APP_GUARD } from '@nestjs/core';
 import { SupabaseAuthGuard } from './guards/supabase.guard';
 import { ConfigService } from '@nestjs/config';
 import { SupabaseConfig } from '../environment';
+import { UserService } from '../user/user.service';
+import { UserModule } from '../user/user.module';
+import { PrismaClient } from '@prisma/client';
 
 const options = {
-  autoRefreshToken: true,
   persistSession: false,
   detectSessionInUrl: false,
 };
 
 @Module({
-  imports: [PassportModule],
+  imports: [PassportModule, UserModule],
   providers: [
     AuthService,
+    UserService,
+    PrismaClient,
     SupabaseStrategy,
     {
       provide: SupabaseClient,
@@ -26,7 +30,11 @@ const options = {
       useFactory: async (configService: ConfigService) => {
         const supabaseConfig =
           configService.getOrThrow<SupabaseConfig>('supabase');
-        createClient(supabaseConfig.url, supabaseConfig.key, options);
+        return createClient(
+          supabaseConfig.url,
+          supabaseConfig.privateKey,
+          options,
+        );
       },
     },
     {

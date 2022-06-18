@@ -2,9 +2,12 @@ import { Test } from '@nestjs/testing';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dtos';
+import { AuthDto, DevAuthDto } from './dtos';
 import { TokenType } from './types';
 import { MockSupabaseClient } from '../../test/helpers';
+import { UserService } from '../user/user.service';
+import { PrismaClient } from '@prisma/client';
+import { prismaMock } from '../../test/helpers/singleton';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -24,6 +27,11 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
+        UserService,
+        {
+          provide: PrismaClient,
+          useValue: prismaMock,
+        },
         {
           provide: SupabaseClient,
           useValue: new MockSupabaseClient('test', 'test'),
@@ -44,7 +52,7 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    let authDto: AuthDto;
+    let authDto: DevAuthDto;
     let response: TokenType;
 
     beforeEach(() => {
@@ -65,6 +73,17 @@ describe('AuthController', () => {
     it('should respond with signIn response', async () => {
       const actual = await controller.login(authDto);
       expect(actual).toBe(response);
+    });
+  });
+
+  describe('signUp', () => {
+    it('should call signUp', async () => {
+      const authDto: AuthDto = {
+        email: 'testEmail',
+      };
+      jest.spyOn(service, 'signUp').mockImplementation();
+      await controller.signUp(authDto);
+      expect(service.signUp).toBeCalledWith(authDto);
     });
   });
 });

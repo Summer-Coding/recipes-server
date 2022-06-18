@@ -6,6 +6,9 @@ import { UserDto } from '../auth/dtos';
 import { UpsertProfileDto } from './dto/upsert-profile.dto';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
+import { AuthService } from '../auth/auth.service';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { MockSupabaseClient } from '../../test/helpers';
 
 const defaultUser: UserDto = {
   id: 'id',
@@ -27,11 +30,16 @@ describe('ProfileController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProfileController],
       providers: [
+        AuthService,
         ProfileService,
         UserService,
         {
           provide: PrismaClient,
           useValue: prismaMock,
+        },
+        {
+          provide: SupabaseClient,
+          useValue: new MockSupabaseClient('test', 'test'),
         },
       ],
     }).compile();

@@ -24,7 +24,11 @@ const options = {
       useFactory: async (configService: ConfigService) => {
         const supabaseConfig =
           configService.getOrThrow<SupabaseConfig>('supabase');
-        createClient(supabaseConfig.url, supabaseConfig.privateKey, options);
+        return createClient(
+          supabaseConfig.url,
+          supabaseConfig.privateKey,
+          options,
+        );
       },
     },
   ],
