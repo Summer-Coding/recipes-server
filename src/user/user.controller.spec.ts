@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaClient, Role, User } from '@prisma/client';
 import { UserDto } from 'src/auth/dtos';
+import { prismaMock } from '../../test/helpers/singleton';
 import { UpdateEmailDto } from './dtos/update-email.dto';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -30,7 +31,13 @@ describe('UserController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [UserService, PrismaClient],
+      providers: [
+        UserService,
+        {
+          provide: PrismaClient,
+          useValue: prismaMock,
+        },
+      ],
     }).compile();
 
     controller = module.get<UserController>(UserController);
