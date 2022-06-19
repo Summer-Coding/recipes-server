@@ -28,9 +28,7 @@ export class AuthService {
     });
 
     if (error) {
-      throw new Error(
-        `User with email ${authDto.email} was unable to sign up: ${error.message}`,
-      );
+      throw new Error(`User with email ${authDto.email} was unable to sign up`);
     }
   }
 
