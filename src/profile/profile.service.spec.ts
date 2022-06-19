@@ -4,7 +4,6 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { MockSupabaseClient } from '../../test/helpers';
 import { prismaMock } from '../../test/helpers/singleton';
 import { AuthService } from '../auth/auth.service';
-import { UserService } from '../user/user.service';
 import { ProfileService } from './profile.service';
 
 const defaultProfile: Profile = {
@@ -15,6 +14,8 @@ const defaultProfile: Profile = {
   profileImageSrc: null,
   userId: 'userId',
   isActive: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 describe('ProfileService', () => {
@@ -26,7 +27,6 @@ describe('ProfileService', () => {
       providers: [
         AuthService,
         ProfileService,
-        UserService,
         {
           provide: PrismaClient,
           useValue: prismaMock,

@@ -77,6 +77,8 @@ describe('ProfileController', () => {
         id: 'id',
         profileImageSrc: null,
         isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       jest.spyOn(service, 'upsert').mockResolvedValue(response);
@@ -110,6 +112,8 @@ describe('ProfileController', () => {
         id: 'id',
         profileImageSrc: null,
         isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       jest.spyOn(service, 'findOne').mockResolvedValue(response);
