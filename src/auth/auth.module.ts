@@ -8,8 +8,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { SupabaseAuthGuard } from './guards/supabase.guard';
 import { ConfigService } from '@nestjs/config';
 import { SupabaseConfig } from '../environment';
-import { UserService } from '../user/user.service';
-import { UserModule } from '../user/user.module';
 import { PrismaClient } from '@prisma/client';
 
 const options = {
@@ -18,10 +16,9 @@ const options = {
 };
 
 @Module({
-  imports: [PassportModule, UserModule],
+  imports: [PassportModule],
   providers: [
     AuthService,
-    UserService,
     PrismaClient,
     SupabaseStrategy,
     {

@@ -154,7 +154,7 @@ describe('AdminService', () => {
 
       expect(supabase.auth.api.updateUserById).toBeCalledWith(authDto.id, {
         user_metadata: {
-          roles: ['user', 'admin'],
+          roles: ['USER', 'ADMIN'],
         },
       });
     });
@@ -174,25 +174,6 @@ describe('AdminService', () => {
       } catch (error) {
         expect(error).toMatchObject(new Error('could not set user to admin'));
       }
-    });
-
-    it('should call create', async () => {
-      jest.spyOn(supabase.auth.api, 'updateUserById').mockResolvedValue({
-        user: userData,
-        error: null,
-        data: userData,
-      });
-
-      await service.setUserToAdmin(authDto);
-
-      expect(prismaMock.user.update).toBeCalledWith({
-        where: {
-          id: authDto.id,
-        },
-        data: {
-          roles: [Role.USER, Role.ADMIN],
-        },
-      });
     });
   });
 });

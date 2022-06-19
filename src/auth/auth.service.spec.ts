@@ -3,7 +3,6 @@ import { SupabaseClient, ApiError, Session, User } from '@supabase/supabase-js';
 import { AuthService } from './auth.service';
 import { AuthDto, DevAuthDto } from './dtos';
 import { MockSupabaseClient } from '../../test/helpers';
-import { UserService } from '../user/user.service';
 import { PrismaClient } from '@prisma/client';
 import { prismaMock } from '../../test/helpers/singleton';
 
@@ -49,15 +48,13 @@ const defaultSession: Session = {
 };
 
 describe('AuthService', () => {
-  let authService: AuthService;
+  let service: AuthService;
   let supabase: SupabaseClient;
-  let userService: UserService;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         AuthService,
-        UserService,
         {
           provide: PrismaClient,
           useValue: prismaMock,
@@ -69,13 +66,12 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    authService = moduleRef.get<AuthService>(AuthService);
+    service = moduleRef.get<AuthService>(AuthService);
     supabase = moduleRef.get<SupabaseClient>(SupabaseClient);
-    userService = moduleRef.get<UserService>(UserService);
   });
 
   it('should be defined', () => {
-    expect(authService).toBeDefined();
+    expect(service).toBeDefined();
   });
 
   describe('signIn', () => {
@@ -113,7 +109,7 @@ describe('AuthService', () => {
       jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       try {
-        await authService.signIn(authDto);
+        await service.signIn(authDto);
       } catch {}
 
       expect(supabase.auth.signIn).toBeCalledWith(authDto);
@@ -128,7 +124,7 @@ describe('AuthService', () => {
       jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       try {
-        await authService.signIn(authDto);
+        await service.signIn(authDto);
       } catch (error) {
         expect(error).toMatchObject(
           new Error('user with email testEmail was unable to sign in'),
@@ -140,7 +136,7 @@ describe('AuthService', () => {
       jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
       try {
-        await authService.signIn(authDto);
+        await service.signIn(authDto);
       } catch (error) {
         expect(error).toMatchObject(
           new Error('user with email testEmail was unable to sign in'),
@@ -152,7 +148,7 @@ describe('AuthService', () => {
       signInResult.session = session;
       jest.spyOn(supabase.auth, 'signIn').mockResolvedValue(signInResult);
 
-      const result = await authService.signIn(authDto);
+      const result = await service.signIn(authDto);
 
       expect(result).toMatchObject({
         accessToken: signInResult.session.access_token,
@@ -181,7 +177,7 @@ describe('AuthService', () => {
         .mockResolvedValue(signUpResult);
 
       try {
-        await authService.signUp(authDto);
+        await service.signUp(authDto);
       } catch {}
 
       expect(supabase.auth.api.createUser).toBeCalledWith({
@@ -205,7 +201,7 @@ describe('AuthService', () => {
       jest.spyOn(supabase.auth.api, 'createUser').mockResolvedValue(result);
 
       try {
-        await authService.signUp(authDto);
+        await service.signUp(authDto);
       } catch (error) {
         expect(error).toMatchObject(
           new Error('User with email testEmail was unable to sign up'),
@@ -219,26 +215,12 @@ describe('AuthService', () => {
         .mockResolvedValue(signUpResult);
 
       try {
-        await authService.signUp(authDto);
+        await service.signUp(authDto);
       } catch (error) {
         expect(error).toMatchObject(
           new Error('user with email testEmail was unable to sign in'),
         );
       }
-    });
-
-    it('should call createIfNotExists', async () => {
-      jest
-        .spyOn(supabase.auth.api, 'createUser')
-        .mockResolvedValue(signUpResult);
-
-      jest.spyOn(userService, 'createIfNotExists').mockImplementation();
-
-      await authService.signUp(authDto);
-      expect(userService.createIfNotExists).toBeCalledWith({
-        id: signUpResult.user?.id,
-        email: authDto.email,
-      });
     });
   });
 
@@ -247,7 +229,7 @@ describe('AuthService', () => {
       const username = 'username';
       jest.spyOn(supabase.auth.api, 'updateUserById').mockImplementation();
 
-      await authService.setUsername(defaultUser.id, username);
+      await service.setUsername(defaultUser.id, username);
       expect(supabase.auth.api.updateUserById).toBeCalledWith(defaultUser.id, {
         user_metadata: {
           username,

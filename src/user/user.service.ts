@@ -5,30 +5,6 @@ import { Prisma, PrismaClient, Role, User } from '@prisma/client';
 export class UserService {
   constructor(private prisma: PrismaClient) {}
 
-  async createIfNotExists(
-    userCreateInput: Prisma.UserCreateInput,
-  ): Promise<void> {
-    const userCount = await this.prisma.user.count({
-      where: {
-        id: userCreateInput.id,
-      },
-    });
-
-    if (userCount === 0) {
-      this.create(userCreateInput);
-    }
-  }
-
-  private async create(userCreateInput: Prisma.UserCreateInput): Promise<void> {
-    await this.prisma.user.create({
-      data: {
-        id: userCreateInput.id,
-        email: userCreateInput.email,
-        roles: [Role.USER],
-      },
-    });
-  }
-
   async findOne(
     userWhereUnique: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {

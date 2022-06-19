@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
 import { PrismaClient } from '@prisma/client';
-import { UserService } from 'src/user/user.service';
-import { UserModule } from 'src/user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { AuthService } from '../auth/auth.service';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -21,7 +19,6 @@ const options = {
     AuthService,
     ProfileService,
     PrismaClient,
-    UserService,
     {
       provide: SupabaseClient,
       inject: [ConfigService],
@@ -36,6 +33,6 @@ const options = {
       },
     },
   ],
-  imports: [AuthModule, UserModule],
+  imports: [AuthModule],
 })
 export class ProfileModule {}

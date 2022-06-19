@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 
@@ -36,26 +36,14 @@ export class AdminService {
   }
 
   async setUserToAdmin(dto: SetAdminDto): Promise<void> {
-    const { user, error } = await this.supabase.auth.api.updateUserById(
-      dto.id,
-      {
-        user_metadata: {
-          roles: ['user', 'admin'],
-        },
-      },
-    );
-
-    if (error || user === null) {
-      throw new Error('could not set user to admin');
-    }
-
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        roles: [Role.USER, Role.ADMIN],
+    const { error } = await this.supabase.auth.api.updateUserById(dto.id, {
+      user_metadata: {
+        roles: ['USER', 'ADMIN'],
       },
     });
+
+    if (error) {
+      throw new Error('could not set user to admin');
+    }
   }
 }

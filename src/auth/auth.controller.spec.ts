@@ -5,7 +5,6 @@ import { AuthService } from './auth.service';
 import { AuthDto, DevAuthDto } from './dtos';
 import { TokenType } from './types';
 import { MockSupabaseClient } from '../../test/helpers';
-import { UserService } from '../user/user.service';
 import { PrismaClient } from '@prisma/client';
 import { prismaMock } from '../../test/helpers/singleton';
 
@@ -27,7 +26,6 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
-        UserService,
         {
           provide: PrismaClient,
           useValue: prismaMock,

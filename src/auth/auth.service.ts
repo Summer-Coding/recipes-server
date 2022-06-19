@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { UserService } from '../user/user.service';
 import { AuthDto, DevAuthDto } from './dtos';
 import { TokenType } from './types';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private supabase: SupabaseClient,
-    private userService: UserService,
-  ) {}
+  constructor(private supabase: SupabaseClient) {}
 
   async signIn(authDto: DevAuthDto): Promise<TokenType> {
     const { session, error } = await this.supabase.auth.signIn({ ...authDto });
@@ -24,21 +20,18 @@ export class AuthService {
   }
 
   async signUp(authDto: AuthDto): Promise<void> {
-    const { user, error } = await this.supabase.auth.api.createUser({
+    const { error } = await this.supabase.auth.api.createUser({
       email: authDto.email,
       user_metadata: {
         roles: ['USER'],
       },
     });
 
-    if (error || !user?.id) {
-      throw new Error(`User with email ${authDto.email} was unable to sign up`);
+    if (error) {
+      throw new Error(
+        `User with email ${authDto.email} was unable to sign up: ${error.message}`,
+      );
     }
-
-    this.userService.createIfNotExists({
-      id: user.id,
-      email: authDto.email,
-    });
   }
 
   async setUsername(userId: string, username: string): Promise<void> {
