@@ -4,7 +4,6 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProfileModule } from './profile/profile.module';
-import { UserModule } from './user/user.module';
 import supabaseConfig from './environment/supabase.config';
 import * as Joi from 'joi';
 
@@ -26,7 +25,6 @@ import * as Joi from 'joi';
     AuthModule,
     PrismaModule,
     ProfileModule,
-    UserModule,
   ],
 })
 export class AppModule {}
