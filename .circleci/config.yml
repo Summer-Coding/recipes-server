@@ -13,9 +13,6 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
           check-cache: detect
-      - node/run:
-          pkg-manager: yarn
-          yarn-run: build
 
 workflows:
   build:
