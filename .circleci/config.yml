@@ -60,9 +60,6 @@ jobs:
       - run:
           name: Build modules
           command: yarn build
-      - persist_to_workspace:
-          paths: *build-output-paths
-          root: *workspace-root
 
   lint:
     executor: default
