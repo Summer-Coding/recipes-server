@@ -91,6 +91,6 @@
     "testEnvironment": "node"
   },
   "jest-junit": {
-    "output": "./test-results/jest/results.xml"
+    "output": "./test-results/junit/results.xml"
   }
 }
