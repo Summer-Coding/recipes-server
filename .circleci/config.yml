@@ -29,9 +29,6 @@ jobs:
             yarn test --ci --reporters=jest-junit
       - store_artifacts:
           path: ./artifacts
-          destination: junit
-      - store_test_results:
-          path: ./artifacts/test-results
 
 workflows:
   build:
