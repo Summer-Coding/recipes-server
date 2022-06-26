@@ -48,9 +48,6 @@ jobs:
       - node/install-packages:
           check-cache: detect 
           pkg-manager: yarn
-      - persist_to_workspace:
-          paths: *dependency-paths
-          root: *workspace-root
 
   build:
     executor: default
@@ -72,7 +69,6 @@ jobs:
 
   test:
     executor: default
-    parallelism: 3
     steps:
       - checkout
       - *attach-workspace
