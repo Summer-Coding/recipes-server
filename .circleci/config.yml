@@ -8,7 +8,6 @@ executors:
     docker:
       - image: cimg/node:16.15.1
 
-
 aliases: [
   # List of dependency paths that should be persisted to the
   # CircleCI workspace.
@@ -22,9 +21,6 @@ aliases: [
     "dist",
   ],
 
-  # NPM lockfile cache key (update "vN" => "vN+1" to cache-bust).
-  &dependency-cache-key "v2-dependency-cache-{{ checksum \"yarn.lock\" }}",
-
   &workspace-root "/home/circleci/project",
 
   &attach-workspace {
@@ -33,26 +29,14 @@ aliases: [
     }
   },
 
-  # Filter pull requests not in "master" or "next" (development code)
+  # Filter pull requests not in "master" or "stage" (development code)
   &filter-default-branches {
     filters: {
       branches: {
-        ignore: "/^master$|^next$/"
+        ignore: "/^master$|^stage$/"
       }
     }
-  },
-
-  # Filter pull requests in "master" or "next" only (production code).
-  &filter-release-branches-only {
-    filters: {
-      branches: {
-        only: [
-          "master",
-          "next",
-        ]
-      }
-    }
-  }
+  },  
 ]
 
 jobs:
@@ -67,14 +51,6 @@ jobs:
       - persist_to_workspace:
           paths: *dependency-paths
           root: *workspace-root
-  lint:
-    executor: default
-    steps:
-      - checkout
-      - *attach-workspace
-      - run:
-          name: Lint source files
-          command: yarn run lint
 
   build:
     executor: default
@@ -88,16 +64,30 @@ jobs:
           paths: *build-output-paths
           root: *workspace-root
 
-  test:
+  lint:
     executor: default
     steps:
       - checkout
       - *attach-workspace
       - run:
+          name: Lint source files
+          command: yarn run lint
+
+  test:
+    executor: default
+    parallelism: 3
+    steps:
+      - checkout
+      - *attach-workspace
+      - run:
           name: Run unit tests
-          command: yarn test
+          command: |
+            mkdir -p  ./artifacts/test-results/jest
+            yarn test --ci --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_FILE: ./artifacts/test-results/jest/jest.xml
       - store_artifacts:
-          path: coverage
+          path: ./artifacts
 
 
 
