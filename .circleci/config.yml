@@ -3,6 +3,12 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.2
 
+executors:
+  default:
+    docker:
+      - image: circleci/node:16
+
+
 aliases: [
   # List of dependency paths that should be persisted to the
   # CircleCI workspace.
@@ -51,8 +57,7 @@ aliases: [
 
 jobs:
   install-dependencies:
-    docker:
-      - image: cimg/base:stable
+    executor: default
     steps:
       - checkout
       - *attach-workspace
@@ -63,17 +68,16 @@ jobs:
           paths: *dependency-paths
           root: *workspace-root
   lint:
-    docker:
-      - image: cimg/base:stable
+    executor: default
     steps:
       - checkout
       - *attach-workspace
       - run:
           name: Lint source files
           command: yarn run lint
+
   build:
-    docker:
-      - image: cimg/base:stable
+    executor: default
     steps:
       - checkout
       - *attach-workspace
@@ -83,9 +87,9 @@ jobs:
       - persist_to_workspace:
           paths: *build-output-paths
           root: *workspace-root
+
   test:
-    docker:
-      - image: cimg/base:stable
+    executor: default
     steps:
       - checkout
       - *attach-workspace
@@ -94,6 +98,8 @@ jobs:
           command: yarn test
       - store_artifacts:
           path: coverage
+
+
 
 workflows:
   pull-request:
