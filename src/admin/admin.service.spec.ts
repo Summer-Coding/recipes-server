@@ -1,24 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SupabaseClient, User } from '@supabase/supabase-js';
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Profile, Role } from '@prisma/client';
+import { DateTime } from 'luxon';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
 import { UserDto } from '../auth/dtos';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 import { prismaMock } from '../../test/helpers/singleton';
 
-type UserProfileType = {
-  userId: string;
+type UserProfileType = Profile & {
   user: {
     roles: Role[];
     email: string;
   };
-  id: string;
-  firstName: string;
-  lastName: string;
-  username: string;
-  isActive: boolean;
-  profileImageSrc: string | null;
 };
 
 const defaultUser: User = {
@@ -60,11 +54,9 @@ describe('AdminService', () => {
   });
 
   describe('getAllProfiles', () => {
-    let users: UserDto[];
     let profile: UserProfileType;
 
     beforeEach(() => {
-      users = [defaultUser];
       profile = {
         id: 'profileId',
         firstName: 'firstName',
@@ -77,6 +69,8 @@ describe('AdminService', () => {
           email: defaultUser.email as string,
           roles: [Role.USER],
         },
+        createdAt: DateTime.now().toJSDate(),
+        updatedAt: DateTime.now().toJSDate(),
       };
     });
 
