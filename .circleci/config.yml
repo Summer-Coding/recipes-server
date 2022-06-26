@@ -3,121 +3,34 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.2
 
-aliases: [
-  # List of dependency paths that should be persisted to the
-  # CircleCI workspace.
-  &dependency-paths [
-    "node_modules"
-  ],
-
-  # List of build output paths that should be persisted to the
-  # CircleCI workspace.
-  &build-output-paths [
-    "dist",
-  ],
-
-  # NPM lockfile cache key (update "vN" => "vN+1" to cache-bust).
-  &dependency-cache-key "v2-dependency-cache-{{ checksum \"yarn.lock\" }}",
-
-  &workspace-root "/home/circleci/project",
-
-  &attach-workspace {
-    attach_workspace: {
-      at: *workspace-root
-    }
-  },
-
-  # Filter pull requests not in "master" or "next" (development code)
-  &filter-default-branches {
-    filters: {
-      branches: {
-        ignore: "/^master$|^next$/"
-      }
-    }
-  },
-
-  # Filter pull requests in "master" or "next" only (production code).
-  &filter-release-branches-only {
-    filters: {
-      branches: {
-        only: [
-          "master",
-          "next",
-        ]
-      }
-    }
-  }
-]
-
-executors:
-  default:
-    docker:
-      - image: circleci/node:16-browsers
-  
 jobs:
-  install-dependencies:
+  pipeline:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:16.15.1
+    working_directory: ~/recipes-server
     steps:
       - checkout
-      - *attach-workspace
-      - restore_cache:
-          key: *dependency-cache-key
-      - run:
-          name: Install Module Dependencies
-          command: yarn install
-      - save_cache:
-          paths: *dependency-paths
-          key: *dependency-cache-key
-      - persist_to_workspace:
-          paths: *dependency-paths
-          root: *workspace-root
-  
-  lint:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - *attach-workspace
-      - run:
-          name: Lint source files
-          command: yarn run lint
-  
-  build:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - *attach-workspace
+      - node/install-packages:
+          check-cache: detect 
+          pkg-manager: yarn
       - run:
           name: Build modules
           command: yarn build
-      - persist_to_workspace:
-          paths: *build-output-paths
-          root: *workspace-root
-  
-  test:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - *attach-workspace
+      - run:
+          name: Lint
+          command: yarn lint
       - run:
           name: Run unit tests
-          command: yarn test
+          command: |
+            mkdir -p  ./artifacts/test-results/jest
+            yarn test --ci --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_FILE: ./artifacts/test-results/jest/jest.xml
       - store_artifacts:
-          path: coverage
+          path: ./artifacts
+
 
 workflows:
   pull-request:
     jobs:
-      - install-dependencies: *filter-default-branches
-      - build:
-          requires:
-            - install-dependencies
-      - test:
-          requires:
-            - build
-      - lint:
-          requires:
-            - build
+      - pipeline
