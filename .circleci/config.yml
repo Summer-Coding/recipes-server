@@ -25,10 +25,10 @@ jobs:
       - run:
           name: Jest tests
           command: |
-            mkdir -p  ./artifacts/test-results
+            mkdir -p  /tmp/artifacts/test-results
             yarn test --ci --reporters=jest-junit
       - store_artifacts:
-          path: ./artifacts
+          path: /tmp/artifacts
 
 workflows:
   build:
