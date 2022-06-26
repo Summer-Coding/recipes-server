@@ -15,6 +15,7 @@ jobs:
           check-cache: detect
       - run: yarn lint
       - run: yarn build
+      - run: yarn global add jest
       - run:
           name: Install JUnit coverage reporter
           command: yarn add --dev jest-junit
