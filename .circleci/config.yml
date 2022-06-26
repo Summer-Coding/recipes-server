@@ -17,7 +17,7 @@ jobs:
       - run: yarn build
       - run: yarn test
       - store_test_results:
-          path: test-results
+          path: ./reports/jest
 
 workflows:
   build:
