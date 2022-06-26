@@ -1,39 +1,113 @@
 version: 2.1
-orbs:
-  node: circleci/node@5.0.2
 
-jobs:
-  build:
-    working_directory: ~/recipes-server
+aliases: [
+  # List of dependency paths that should be persisted to the
+  # CircleCI workspace.
+  &dependency-paths [
+    "node_modules"
+  ],
+
+  # List of build output paths that should be persisted to the
+  # CircleCI workspace.
+  &build-output-paths [
+    "dist",
+  ],
+
+  # NPM lockfile cache key (update "vN" => "vN+1" to cache-bust).
+  &dependency-cache-key "v2-dependency-cache-{{ checksum \"yarn.lock\" }}",
+
+  &workspace-root "/home/circleci/project",
+
+  &attach-workspace {
+    attach_workspace: {
+      at: *workspace-root
+    }
+  },
+
+  # Filter pull requests not in "master" or "next" (development code)
+  &filter-default-branches {
+    filters: {
+      branches: {
+        ignore: "/^master$|^next$/"
+      }
+    }
+  },
+
+  # Filter pull requests in "master" or "next" only (production code).
+  &filter-release-branches-only {
+    filters: {
+      branches: {
+        only: [
+          "master",
+          "next",
+        ]
+      }
+    }
+  }
+]
+
+executors:
+  default:
     docker:
-      - image: cimg/base:stable
-    parallelism: 3
+      - image: circleci/node:16-browsers
+  
+jobs:
+  install-dependencies:
+    executor: default
     steps:
       - checkout
-      - node/install:
-          install-yarn: true
+      - *attach-workspace
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-      - run: yarn install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      - run: yarn lint
-      - run: yarn build
+          key: *dependency-cache-key
       - run:
-          name: Jest tests
-          command: |
-            mkdir -p  /tmp/artifacts/test-results/jest
-            yarn test --ci --testResultsProcessor=jest-junit
-          environment:
-            JEST_JUNIT_OUTPUT_FILE: /tmp/artifacts/test-results/jest/jest.xml
+          name: Install Module Dependencies
+          command: yarn install
+      - save_cache:
+          paths: *dependency-paths
+          key: *dependency-cache-key
+      - persist_to_workspace:
+          paths: *dependency-paths
+          root: *workspace-root
+  lint:
+    executor: default
+    steps:
+      - checkout
+      - *attach-workspace
+      - run:
+          name: Lint source files
+          command: yarn run lint
+  build:
+    executor: default
+    steps:
+      - checkout
+      - *attach-workspace
+      - run:
+          name: Build modules
+          command: yarn build
+      - persist_to_workspace:
+          paths: *build-output-paths
+          root: *workspace-root
+  test:
+    executor: default
+    steps:
+      - checkout
+      - *attach-workspace
+      - run:
+          name: Run unit tests
+          command: yarn test
       - store_artifacts:
-          path: /tmp/artifacts
+          path: coverage
 
 workflows:
-  build:
+  pull-request:
     jobs:
-      - build
+      - install-dependencies: *filter-default-branches
+      - build:
+          requires:
+            - install-dependencies
+      - test:
+          requires:
+            - build
+      - lint:
+          requires:
+            - build
