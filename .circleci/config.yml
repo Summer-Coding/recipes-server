@@ -13,9 +13,7 @@ jobs:
       - node/install-packages:
           pkg-manager: yarn
           check-cache: detect
-      - node/run:
-          pkg-manager: yarn
-          override-ci-command: yarn build
+      - run: yarn build
 
 workflows:
   build:
