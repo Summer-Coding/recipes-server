@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SupabaseClient, User } from '@supabase/supabase-js';
+import { PrismaClient, Role } from '@prisma/client';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
-import { PrismaClient, Role } from '@prisma/client';
-import { UserDto } from 'src/auth/dtos';
+import { UserDto } from '../auth/dtos';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 import { prismaMock } from '../../test/helpers/singleton';
 
