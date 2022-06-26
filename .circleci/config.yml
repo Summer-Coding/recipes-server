@@ -25,14 +25,14 @@ jobs:
       - run:
           name: Jest tests
           command: |
-            mkdir -p  ~/recipes-server/artifacts/test-results/jest
+            mkdir -p  /tmp/artifacts/test-results/jest
             yarn test --ci --reporters=default --reporters=jest-junit --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT_FILE: ~/recipes-server/artifacts/test-results/jest/jest.xml
+            JEST_JUNIT_OUTPUT_DIR: /tmp/artifacts/test-results/jest
       - store_artifacts:
-          path: ~/recipes-server/artifacts
+          path: /tmp/artifacts
       - store_test_results:
-          path: ~/recipes-server/artifacts/test-results
+          path: /tmp/artifacts/test-results
 
 workflows:
   build:
