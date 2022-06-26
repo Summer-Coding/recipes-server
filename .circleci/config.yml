@@ -15,6 +15,7 @@ jobs:
           check-cache: detect
       - run: yarn lint
       - run: yarn build
+      - run: mkdir ~/reports
       - run: mkdir ~/reports/jest
       - run: yarn test
       - store_test_results:
