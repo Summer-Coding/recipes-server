@@ -4,7 +4,7 @@ orbs:
 
 jobs:
   build:
-    working_directory: ~/recipes-server
+    working_directory: /recipes-server
     docker:
       - image: cimg/base:stable
     steps:
@@ -25,15 +25,15 @@ jobs:
       - run:
           name: Jest tests
           command: |
-            mkdir -p  ~/recipes-server/test-results/junit
+            mkdir -p  ./test-results/junit
             yarn test --ci --reporters=jest-junit
           environment:
-            JEST_JUNIT_OUTPUT: ~/recipes-server/test-results/junit/results.xml
+            JEST_JUNIT_OUTPUT: ./test-results/junit/results.xml
       - store_artifacts:
-          path: ~/recipes-server/test-results
+          path: ./test-results
           destination: junit
       - store_test_results:
-          path: ~/recipes-server/test-results
+          path: ./test-results
 
 workflows:
   build:
