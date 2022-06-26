@@ -14,8 +14,10 @@ jobs:
           pkg-manager: yarn
           check-cache: detect
       - run: yarn lint
-      - run: yarn test
       - run: yarn build
+      - run: yarn test
+      - store_test_results:
+          path: test-results
 
 workflows:
   build:
