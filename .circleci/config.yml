@@ -27,11 +27,11 @@ jobs:
           command: |
             mkdir -p  /tmp/artifacts/test-results
             yarn test --ci --reporters=jest-junit
+      - store_test_results:
+          path: /tmp/artifacts/test-results
       - store_artifacts:
           path: /tmp/artifacts
           destination: junit
-      - store_test_results:
-          path: /tmp/artifacts/test-results
 
 workflows:
   build:
