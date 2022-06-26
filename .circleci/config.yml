@@ -31,8 +31,6 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: /tmp/artifacts/test-results
       - store_artifacts:
           path: /tmp/artifacts
-      - store_test_results:
-          path: /tmp/artifacts/test-results
 
 workflows:
   build:
