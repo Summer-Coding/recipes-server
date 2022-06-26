@@ -17,11 +17,13 @@ jobs:
       - run: yarn build
       - run:
           name: Jest tests
-          command: 'yarn test:ci'
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ~/reports/jest
+          command: |
+            mkdir -p ~/test-results/jest
+            yarn test:ci
+      - store_artifacts:
+          path: ~/test-results/jest
       - store_test_results:
-          path: ~/reports/jest
+          path: ~/test-results/jest
 
 workflows:
   build:

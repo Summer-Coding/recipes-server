@@ -89,5 +89,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "jest-junit": {
+    "output": "./test-results/jest/results.xml"
   }
 }
