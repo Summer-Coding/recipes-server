@@ -25,15 +25,13 @@ jobs:
       - run:
           name: Jest tests
           command: |
-            mkdir -p  ./test-results
+            mkdir -p  ./artifacts/test-results
             yarn test --ci --reporters=jest-junit
-          environment:
-            JEST_JUNIT_OUTPUT: ./test-results/results.xml
       - store_artifacts:
-          path: ./test-results
+          path: ./artifacts
           destination: junit
       - store_test_results:
-          path: ./test-results
+          path: ./artifacts/test-results
 
 workflows:
   build:
