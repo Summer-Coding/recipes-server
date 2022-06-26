@@ -1,21 +1,36 @@
 version: 2.1
+
 orbs:
   node: circleci/node@5.0.2
 
 jobs:
-  build:
+  pipeline:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:16.15.1
+    working_directory: ~/recipes-server
     steps:
       - checkout
-      - node/install:
-          install-yarn: true
       - node/install-packages:
+          check-cache: detect 
           pkg-manager: yarn
-          check-cache: detect
-      - run: yarn build
+      - run:
+          name: Build modules
+          command: yarn build
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Run unit tests
+          command: |
+            mkdir -p  ./artifacts/test-results/jest
+            yarn test --ci --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_FILE: ./artifacts/test-results/jest/jest.xml
+      - store_artifacts:
+          path: ./artifacts
+
 
 workflows:
-  build:
+  pull-request:
     jobs:
-      - build
+      - pipeline
