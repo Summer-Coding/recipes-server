@@ -29,8 +29,10 @@ jobs:
             yarn test --ci --reporters=default --reporters=jest-junit --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT_FILE: /tmp/artifacts/test-results/jest.xml
+      - store_artifacts:
+          path: /tmp/artifacts
       - store_test_results:
-          path: /tmp/artifacts/test-results
+          path: /tmp/artifacts
 
 workflows:
   build:
