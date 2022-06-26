@@ -26,7 +26,7 @@ jobs:
           name: Jest tests
           command: |
             mkdir -p  /tmp/artifacts/test-results
-            yarn test --ci --collectCoverage --reporters=default --reporters=jest-junit --testResultsProcessor="jest-junit"
+            yarn test --ci --reporters=default --reporters=jest-junit --testResultsProcessor="jest-junit"
           environment:
             JEST_JUNIT_OUTPUT_FILE: /tmp/artifacts/test-results/jest.xml
       - store_test_results:
