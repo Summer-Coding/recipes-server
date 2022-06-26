@@ -25,10 +25,17 @@ jobs:
       - run:
           name: Jest tests
           command: |
-            mkdir -p  /tmp/artifacts/test-results
+            mkdir -p  /tmp/artifacts/test-results/jest
             yarn test --ci --testResultsProcessor=jest-junit
           environment:
-            JEST_JUNIT_OUTPUT_DIR: /tmp/artifacts/test-results
+            JEST_JUNIT_OUTPUT_FILE: /tmp/artifacts/test-results/jest/jest.xml
+      - run:
+          name: Coverage
+          command: |
+            mkdir -p  /tmp/artifacts/test-results/coverage
+            yarn test:cov --ci --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_FILE: /tmp/artifacts/test-results/coverage/coverage.xml
       - store_artifacts:
           path: /tmp/artifacts
 
