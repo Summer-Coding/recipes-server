@@ -9,6 +9,8 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
+      - node/install:
+          install-yarn: true
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
