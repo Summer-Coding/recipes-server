@@ -18,12 +18,12 @@ jobs:
       - run:
           name: Jest tests
           command: |
-            mkdir -p ~/test-results/jest
+            mkdir -p ./test-results/jest
             yarn test:ci
       - store_artifacts:
-          path: ~/test-results/jest
+          path: ./test-results/jest
       - store_test_results:
-          path: ~/test-results/jest
+          path: ./test-results/jest
 
 workflows:
   build:
