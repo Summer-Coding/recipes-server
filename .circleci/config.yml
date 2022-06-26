@@ -52,24 +52,19 @@ aliases: [
 jobs:
   install-dependencies:
     docker:
-      - image: circleci/node:12
+      - image: cimg/base:stable
     steps:
       - checkout
       - *attach-workspace
-      - restore_cache:
-          key: *dependency-cache-key
-      - run:
-          name: Install Module Dependencies
-          command: yarn install
-      - save_cache:
-          paths: *dependency-paths
-          key: *dependency-cache-key
+      - node/install-packages:
+          check-cache: detect 
+          pkg-manager: yarn
       - persist_to_workspace:
           paths: *dependency-paths
           root: *workspace-root
   lint:
     docker:
-      - image: circleci/node:12
+      - image: cimg/base:stable
     steps:
       - checkout
       - *attach-workspace
@@ -78,7 +73,7 @@ jobs:
           command: yarn run lint
   build:
     docker:
-      - image: circleci/node:12
+      - image: cimg/base:stable
     steps:
       - checkout
       - *attach-workspace
@@ -90,7 +85,7 @@ jobs:
           root: *workspace-root
   test:
     docker:
-      - image: circleci/node:12
+      - image: cimg/base:stable
     steps:
       - checkout
       - *attach-workspace
