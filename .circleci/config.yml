@@ -15,9 +15,10 @@ jobs:
           check-cache: detect
       - run: yarn lint
       - run: yarn build
+      - run: mkdir ~/reports/jest
       - run: yarn test
       - store_test_results:
-          path: ./reports/jest
+          path: ~/reports/jest
 
 workflows:
   build:
