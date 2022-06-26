@@ -3,75 +3,22 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.2
 
-executors:
-  default:
+jobs:
+  pipeline:
     docker:
       - image: cimg/node:16.15.1
-
-aliases: [
-  # List of dependency paths that should be persisted to the
-  # CircleCI workspace.
-  &dependency-paths [
-    "node_modules"
-  ],
-
-  # List of build output paths that should be persisted to the
-  # CircleCI workspace.
-  &build-output-paths [
-    "dist",
-  ],
-
-  &workspace-root "/home/circleci/project",
-
-  &attach-workspace {
-    attach_workspace: {
-      at: *workspace-root
-    }
-  },
-
-  # Filter pull requests not in "master" or "stage" (development code)
-  &filter-default-branches {
-    filters: {
-      branches: {
-        ignore: "/^master$|^stage$/"
-      }
-    }
-  },  
-]
-
-jobs:
-  install-dependencies:
-    executor: default
+    working_directory: ~/recipes-server
     steps:
       - checkout
-      - *attach-workspace
       - node/install-packages:
           check-cache: detect 
           pkg-manager: yarn
-
-  build:
-    executor: default
-    steps:
-      - checkout
-      - *attach-workspace
       - run:
           name: Build modules
           command: yarn build
-
-  lint:
-    executor: default
-    steps:
-      - checkout
-      - *attach-workspace
       - run:
-          name: Lint source files
-          command: yarn run lint
-
-  test:
-    executor: default
-    steps:
-      - checkout
-      - *attach-workspace
+          name: Lint
+          command: yarn lint
       - run:
           name: Run unit tests
           command: |
@@ -83,17 +30,7 @@ jobs:
           path: ./artifacts
 
 
-
 workflows:
   pull-request:
     jobs:
-      - install-dependencies: *filter-default-branches
-      - build:
-          requires:
-            - install-dependencies
-      - test:
-          requires:
-            - build
-      - lint:
-          requires:
-            - build
+      - pipeline
