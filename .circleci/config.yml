@@ -15,13 +15,12 @@ jobs:
           check-cache: detect
       - run: yarn lint
       - run: yarn build
-      - run: yarn global add jest
       - run:
           name: Install JUnit coverage reporter
           command: yarn add --dev jest-junit
       - run:
           name: Jest tests
-          command: jest --ci --runInBand --reporters=default --reporters=jest-junit
+          command: 'yarn test:ci'
           environment:
             JEST_JUNIT_OUTPUT_DIR: ~/reports/jest/
       - store_test_results:
