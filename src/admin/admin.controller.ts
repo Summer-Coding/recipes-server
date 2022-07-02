@@ -7,14 +7,14 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { AdminService } from './admin.service';
-import { Role } from '../auth/constants';
 import { Roles } from '../auth/decorators';
 import { RolesGuard } from '../auth/guards';
 import { SetAdminDto } from './dtos';
 
 @UseGuards(RolesGuard)
-@Roles(Role.Admin)
+@Roles(Role.ADMIN)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
