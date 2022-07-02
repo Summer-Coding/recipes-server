@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { SupabaseConfig } from '../environment';
+import { SupabaseConfig } from '../environment/supabase.config';
 
 const options = {
   schema: 'public',
