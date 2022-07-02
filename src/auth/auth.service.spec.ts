@@ -230,7 +230,7 @@ describe('AuthService', () => {
           email: authDto.email,
         },
         {
-          redirectTo: `${webUrl}/profile`,
+          redirectTo: `${webUrl}/profile/`,
           shouldCreateUser: false,
         },
       );
