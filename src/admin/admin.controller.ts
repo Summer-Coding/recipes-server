@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { SetAdminDto } from './dtos';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -11,13 +19,15 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @HttpCode(HttpStatus.OK)
   @Get('users')
   async getAllUsers() {
     return await this.adminService.getAllProfiles();
   }
 
+  @HttpCode(HttpStatus.CREATED)
   @Post('create')
-  async create(@Body() dto: SetAdminDto) {
+  async setUserToAdmin(@Body() dto: SetAdminDto) {
     await this.adminService.setUserToAdmin(dto);
   }
 }

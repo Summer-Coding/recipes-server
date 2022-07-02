@@ -1,7 +1,7 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma, PrismaClient, Profile } from '@prisma/client';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { MockSupabaseClient } from '../../test/helpers';
 import { prismaMock } from '../../test/helpers/singleton';
 import { AuthService } from '../auth/auth.service';
 import { ProfileService } from './profile.service';
@@ -28,12 +28,18 @@ describe('ProfileService', () => {
         AuthService,
         ProfileService,
         {
+          provide: ConfigService,
+          useValue: {
+            getOrThrow: jest.fn(),
+          },
+        },
+        {
           provide: PrismaClient,
           useValue: prismaMock,
         },
         {
           provide: SupabaseClient,
-          useValue: new MockSupabaseClient('test', 'test'),
+          useValue: new SupabaseClient('test', 'test'),
         },
       ],
     }).compile();
