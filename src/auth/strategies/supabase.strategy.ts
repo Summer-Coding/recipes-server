@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt } from 'passport-jwt';
 import { SupabaseAuthStrategy, SupabaseAuthUser } from 'nestjs-supabase-auth';
-import { ConfigService } from '@nestjs/config';
 import { SupabaseConfig } from '../../environment';
 
 @Injectable()

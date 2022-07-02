@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
+import { PrismaClient, Role } from '@prisma/client';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { PrismaClient, Role } from '@prisma/client';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
-import { prismaMock } from '../../test/helpers/singleton';
-import { ConfigService } from '@nestjs/config';
+import { prismaMock } from '../../test/helpers';
 
 describe('AdminController', () => {
   let controller: AdminController;

@@ -2,8 +2,8 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma, PrismaClient, Profile } from '@prisma/client';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { prismaMock } from '../../test/helpers/singleton';
 import { AuthService } from '../auth/auth.service';
+import { prismaMock } from '../../test/helpers';
 import { ProfileService } from './profile.service';
 
 const defaultProfile: Profile = {

@@ -8,10 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import { Role } from '../auth/constants';
+import { Roles } from '../auth/decorators';
+import { RolesGuard } from '../auth/guards';
 import { SetAdminDto } from './dtos';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/constants/role.enum';
-import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UseGuards(RolesGuard)
 @Roles(Role.Admin)

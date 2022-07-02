@@ -2,12 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient, Profile } from '@prisma/client';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { prismaMock } from '../../test/helpers/singleton';
-import { UpsertProfileDto } from './dto/upsert-profile.dto';
+import { AuthService } from '../auth/auth.service';
+import { UpsertProfileDto } from './dtos';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
-import { AuthService } from '../auth/auth.service';
-import { currentUser } from '../../test/helpers/currentUser';
+import { currentUser, prismaMock } from '../../test/helpers';
 
 describe('ProfileController', () => {
   let controller: ProfileController;

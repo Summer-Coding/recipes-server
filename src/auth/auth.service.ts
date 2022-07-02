@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { AuthDto, PasswordAuthDto } from './dtos';
+import { WebConfig } from '../environment/web.config';
 import { formatString } from '../stringUtils';
 import { TokenType } from './types';
-import { WebConfig } from '../environment';
 
 @Injectable()
 export class AuthService {

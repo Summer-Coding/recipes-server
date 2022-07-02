@@ -5,8 +5,7 @@ import { DateTime } from 'luxon';
 import { AdminService } from './admin.service';
 import { UserDto } from '../auth/dtos';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
-import { prismaMock } from '../../test/helpers/singleton';
-import { defaultUser } from '../../test/helpers/supabaseResults';
+import { defaultUser, prismaMock } from '../../test/helpers';
 
 type UserProfileType = Profile & {
   user: {

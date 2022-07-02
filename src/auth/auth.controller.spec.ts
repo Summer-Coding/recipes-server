@@ -4,8 +4,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { PrismaClient } from '@prisma/client';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { prismaMock } from '../../test/helpers/singleton';
 import { PasswordAuthDto } from './dtos';
+import { prismaMock } from '../../test/helpers';
 import { TokenType } from './types';
 
 describe('AuthController', () => {

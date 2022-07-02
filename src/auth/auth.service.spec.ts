@@ -4,15 +4,15 @@ import { SupabaseClient, Session } from '@supabase/supabase-js';
 import { PrismaClient } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { AuthDto, PasswordAuthDto } from './dtos';
-import { prismaMock } from '../../test/helpers/singleton';
+import { WebConfig } from '../environment/web.config';
 import {
   defaultError,
   defaultUser,
   defaultSession,
+  prismaMock,
   SupabaseSignInResult,
   SupabaseSignUpResult,
-} from '../../test/helpers/supabaseResults';
-import { WebConfig } from '../environment';
+} from '../../test/helpers';
 
 describe('AuthService', () => {
   let service: AuthService;
