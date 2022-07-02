@@ -57,7 +57,7 @@ export class AuthService {
     if (userCount === 0) {
       try {
         await this.signUp(authDto);
-        redirectTo = `${redirectTo}/profile`;
+        redirectTo = `${redirectTo}/profile/`;
       } catch (err) {
         throw err;
       }
