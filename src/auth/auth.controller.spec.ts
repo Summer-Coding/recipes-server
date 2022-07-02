@@ -1,38 +1,35 @@
 import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { PrismaClient } from '@prisma/client';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AuthDto, DevAuthDto } from './dtos';
-import { TokenType } from './types';
-import { MockSupabaseClient } from '../../test/helpers';
-import { PrismaClient } from '@prisma/client';
 import { prismaMock } from '../../test/helpers/singleton';
+import { PasswordAuthDto } from './dtos';
+import { TokenType } from './types';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let service: AuthService;
-  const OLD_ENV = process.env;
 
   beforeEach(async () => {
-    jest.resetModules();
-    process.env = {
-      ...OLD_ENV,
-      SUPABASE_URL: 'supabaseUrl',
-      SUPABASE_KEY: 'supabaseKey',
-      SUPABASE_JWT_SECRET: 'jwt',
-    };
-
     const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         AuthService,
+        {
+          provide: ConfigService,
+          useValue: {
+            getOrThrow: jest.fn(),
+          },
+        },
         {
           provide: PrismaClient,
           useValue: prismaMock,
         },
         {
           provide: SupabaseClient,
-          useValue: new MockSupabaseClient('test', 'test'),
+          useValue: new SupabaseClient('test', 'test'),
         },
       ],
     }).compile();
@@ -41,16 +38,25 @@ describe('AuthController', () => {
     service = moduleRef.get<AuthService>(AuthService);
   });
 
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
   describe('login', () => {
-    let authDto: DevAuthDto;
+    it('should call signIn', async () => {
+      const authDto = {
+        email: 'testEmail',
+      };
+
+      jest.spyOn(service, 'signInAndCreateIfNotExists').mockImplementation();
+
+      await controller.login(authDto);
+      expect(service.signInAndCreateIfNotExists).toBeCalledWith(authDto);
+    });
+  });
+
+  describe('loginWithPassword', () => {
+    let authDto: PasswordAuthDto;
     let response: TokenType;
 
     beforeEach(() => {
@@ -60,28 +66,17 @@ describe('AuthController', () => {
       };
 
       response = { accessToken: 'accessToken' };
-      jest.spyOn(service, 'signIn').mockResolvedValue(response);
+      jest.spyOn(service, 'signInWithPassword').mockResolvedValue(response);
     });
 
     it('should call signIn', async () => {
-      await controller.login(authDto);
-      expect(service.signIn).toBeCalledWith(authDto);
+      await controller.loginWithPassword(authDto);
+      expect(service.signInWithPassword).toBeCalledWith(authDto);
     });
 
     it('should respond with signIn response', async () => {
-      const actual = await controller.login(authDto);
+      const actual = await controller.loginWithPassword(authDto);
       expect(actual).toBe(response);
-    });
-  });
-
-  describe('signUp', () => {
-    it('should call signUp', async () => {
-      const authDto: AuthDto = {
-        email: 'testEmail',
-      };
-      jest.spyOn(service, 'signUp').mockImplementation();
-      await controller.signUp(authDto);
-      expect(service.signUp).toBeCalledWith(authDto);
     });
   });
 });

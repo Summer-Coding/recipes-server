@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -6,7 +6,7 @@ import { SupabaseStrategy } from './strategies/supabase.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { APP_GUARD } from '@nestjs/core';
 import { SupabaseAuthGuard } from './guards/supabase.guard';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SupabaseConfig } from '../environment';
 import { PrismaClient } from '@prisma/client';
 
@@ -16,7 +16,7 @@ const options = {
 };
 
 @Module({
-  imports: [PassportModule],
+  imports: [ConfigModule, PassportModule],
   providers: [
     AuthService,
     PrismaClient,
@@ -40,6 +40,6 @@ const options = {
     },
   ],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, SupabaseStrategy],
 })
 export class AuthModule {}
