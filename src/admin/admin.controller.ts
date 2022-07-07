@@ -1,23 +1,33 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { AdminService } from './admin.service';
+import { Roles } from '../auth/decorators';
+import { RolesGuard } from '../auth/guards';
 import { SetAdminDto } from './dtos';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/constants/role.enum';
-import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UseGuards(RolesGuard)
-@Roles(Role.Admin)
+@Roles(Role.ADMIN)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @HttpCode(HttpStatus.OK)
   @Get('users')
   async getAllUsers() {
     return await this.adminService.getAllProfiles();
   }
 
+  @HttpCode(HttpStatus.CREATED)
   @Post('create')
-  async create(@Body() dto: SetAdminDto) {
+  async setUserToAdmin(@Body() dto: SetAdminDto) {
     await this.adminService.setUserToAdmin(dto);
   }
 }

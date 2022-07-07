@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { UpsertProfileDto } from './dto/upsert-profile.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UpsertProfileDto } from './dtos/upsert-profile.dto';
+import { CurrentUser } from '../auth/decorators';
 import { UserDto } from '../auth/dtos';
 
 @Controller('profile')
