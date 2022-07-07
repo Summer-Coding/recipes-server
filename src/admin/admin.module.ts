@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { SupabaseConfig } from '../environment';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
+import { SupabaseConfig } from '../environment/supabase.config';
 
 const options = {
   schema: 'public',
