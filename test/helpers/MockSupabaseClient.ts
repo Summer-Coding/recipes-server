@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UserCredentials, AdminUserAttributes } from '@supabase/supabase-js';
 import { SupabaseClient } from '@supabase/supabase-js';
 

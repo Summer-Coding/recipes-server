@@ -3,7 +3,6 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { MockSupabaseClient } from '../../test/helpers';
-import { UserDto } from '../auth/dtos';
 import { PrismaClient, Role } from '@prisma/client';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
 import { prismaMock } from '../../test/helpers/singleton';
@@ -49,20 +48,9 @@ describe('AdminController', () => {
   });
 
   describe('getAll', () => {
-    let currentUser: UserDto;
     let currentUserProfile: UserProfileListItemDto;
 
     beforeEach(() => {
-      currentUser = {
-        id: 'id',
-        app_metadata: {},
-        user_metadata: {
-          roles: [Role.USER],
-        },
-        aud: 'aud',
-        created_at: 'createdAt',
-      };
-
       currentUserProfile = {
         id: 'id',
         roles: [Role.USER],
