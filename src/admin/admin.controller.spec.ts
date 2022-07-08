@@ -5,7 +5,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { SetAdminDto, UserProfileListItemDto } from './dtos';
-import { prismaMock } from '../../test/helpers';
+import { prismaMock } from '../../test/helpers/singleton';
 
 describe('AdminController', () => {
   let controller: AdminController;
